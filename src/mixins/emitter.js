@@ -23,6 +23,7 @@ export default {
         }
       }
       if (parent) {
+        // parent.$emit只拿到$emit方法，并不是在parent中调用
         parent.$emit.apply(parent, [eventName].concat(params));
       }
     },

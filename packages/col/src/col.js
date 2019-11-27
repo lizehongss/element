@@ -23,6 +23,7 @@ export default {
   computed: {
     gutter() {
       let parent = this.$parent;
+      //向上寻找componentName为ElRow, 获取其gutter值
       while (parent && parent.$options.componentName !== 'ElRow') {
         parent = parent.$parent;
       }
@@ -34,10 +35,11 @@ export default {
     let style = {};
 
     if (this.gutter) {
+      //设置间隔
       style.paddingLeft = this.gutter / 2 + 'px';
       style.paddingRight = style.paddingLeft;
     }
-
+    // 处理布局, 添加布局的class name
     ['span', 'offset', 'pull', 'push'].forEach(prop => {
       if (this[prop] || this[prop] === 0) {
         classList.push(
@@ -47,7 +49,7 @@ export default {
         );
       }
     });
-
+    // 处理响应式布局,为Number类型直接添加 class name, 为Object时,将每一个对象添加class name
     ['xs', 'sm', 'md', 'lg', 'xl'].forEach(size => {
       if (typeof this[size] === 'number') {
         classList.push(`el-col-${size}-${this[size]}`);

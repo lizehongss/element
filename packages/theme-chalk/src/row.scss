@@ -2,6 +2,7 @@
 @import "mixins/mixins";
 @import "mixins/utils";
 
+//生成 el-row class名
 @include b(row) {
   position: relative;
   box-sizing: border-box;
@@ -13,7 +14,7 @@
     &:after {
       display: none;
     }
-
+  //生成 is-justify-center class名
     @include when(justify-center) {
       justify-content: center;
     }

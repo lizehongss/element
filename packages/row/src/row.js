@@ -23,7 +23,8 @@ export default {
   computed: {
     style() {
       const ret = {};
-
+      // 消除el-col最左和最右的padding
+      // ||边距--边距|边距 --边距|边距 --边距|边距--边距|边距 --边距||
       if (this.gutter) {
         ret.marginLeft = `-${this.gutter / 2}px`;
         ret.marginRight = ret.marginLeft;

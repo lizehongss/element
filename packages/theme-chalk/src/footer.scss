@@ -1,8 +1,9 @@
 @import "mixins/mixins";
 @import "common/var";
-
+// class name el-footer
 @include b(footer) {
   padding: $--footer-padding;
   box-sizing: border-box;
+  //flex-shrink:0这个代码，表示当父容器宽度不够时，footer不会收缩而是保持原本的宽度
   flex-shrink: 0;
 }

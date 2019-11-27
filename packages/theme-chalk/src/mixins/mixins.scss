@@ -6,6 +6,7 @@
 @mixin res($key, $map: $--breakpoints) {
   // 循环断点Map，如果存在则返回
   @if map-has-key($map, $key) {
+    // Inspect ($value)返回值的字符串表示形式，因为它将在 Sass 中表示。
     @media only screen and #{inspect(map-get($map, $key))} {
       @content;
     }

@@ -3,7 +3,7 @@
 @import "mixins/button";
 @import "mixins/mixins";
 @import "mixins/utils";
-
+// class name 为button
 @include b(button) {
   display: inline-block;
   line-height: 1;
@@ -20,6 +20,7 @@
   margin: 0;
   transition: .1s;
   font-weight: $--button-font-weight;
+  // 禁用用户选择
   @include utils-user-select(none);
   & + & {
     margin-left: 10px;
@@ -35,6 +36,7 @@
   }
 
   &:active {
+    // mix为颜色混合
     color: mix($--color-black, $--color-primary, $--button-active-shade-percent);
     border-color: mix($--color-black, $--color-primary, $--button-active-shade-percent);
     outline: none;
@@ -49,7 +51,7 @@
       margin-left: 5px;
     }
   }
-
+  // class name 为is-plain 
   @include when(plain) {
     &:hover,
     &:focus {
@@ -70,7 +72,7 @@
     color: mix($--color-black, $--color-primary, $--button-active-shade-percent);
     border-color: mix($--color-black, $--color-primary, $--button-active-shade-percent);
   }
-
+  // class name 为 is-disabled
   @include when(disabled) {
     &,
     &:hover,
@@ -121,6 +123,7 @@
     border-radius: 50%;
     padding: $--button-padding-vertical;
   }
+  // class name el-button--primary
   @include m(primary) {
     @include button-variant($--button-primary-font-color, $--button-primary-background-color, $--button-primary-border-color);
   }
@@ -136,6 +139,7 @@
   @include m(info) {
     @include button-variant($--button-info-font-color, $--button-info-background-color, $--button-info-border-color);
   }
+  // class name el-button--medium
   @include m(medium) {
     @include button-size($--button-medium-padding-vertical, $--button-medium-padding-horizontal, $--button-medium-font-size, $--button-medium-border-radius);
     @include when(circle) {
@@ -180,7 +184,7 @@
     }
   }
 }
-
+// el-buttongroup
 @include b(button-group) {
   @include utils-clearfix;
   display: inline-block;

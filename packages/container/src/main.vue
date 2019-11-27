@@ -21,6 +21,7 @@
         } else if (this.direction === 'horizontal') {
           return false;
         }
+        // 判断子组件是否有el-header 或者 el-footre ,有就为ture
         return this.$slots && this.$slots.default
           ? this.$slots.default.some(vnode => {
             const tag = vnode.componentOptions && vnode.componentOptions.tag;

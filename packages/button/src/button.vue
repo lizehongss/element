@@ -25,7 +25,7 @@
 <script>
   export default {
     name: 'ElButton',
-
+    // 表单依赖注入
     inject: {
       elForm: {
         default: ''
