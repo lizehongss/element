@@ -3,14 +3,19 @@
 /* BEM support Func
  -------------------------- */
 @function selectorToString($selector) {
+  //字符化
   $selector: inspect($selector);
+  // str-slice 
+  // 从 $string 中截取子字符串，通过 $start-at 和 $end-at 设置始末位置，未指定结束索引值则默认截取到字符串末尾。
   $selector: str-slice($selector, 2, -2);
   @return $selector;
 }
 
 @function containsModifier($selector) {
   $selector: selectorToString($selector);
-
+    //str-index($string, $substring)
+    // 返回一个下标，标示 $substring 在 $string 中的起始位置。没有找到的话，则返回 null 值。
+    // $modifier-specarator --
   @if str-index($selector, $modifier-separator) {
     @return true;
   } @else {
@@ -20,7 +25,7 @@
 
 @function containWhenFlag($selector) {
   $selector: selectorToString($selector);
-
+// $state-prefix: 'is-';
   @if str-index($selector, '.' + $state-prefix) {
     @return true
   } @else {

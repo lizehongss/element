@@ -1,4 +1,7 @@
 <template>
+<!-- html结构为一个div包裹这两个tempalte, 其中一个包裹input, 一个包裹textarea 根据type选择  -->
+<!-- 第一个template里包括五个部分，分别对应element文档中的slot及输入框 -->
+<!-- inputExceed暂时未知 -->
   <div :class="[
     type === 'textarea' ? 'el-textarea' : 'el-input',
     inputSize ? 'el-input--' + inputSize : '',
@@ -39,6 +42,7 @@
         @change="handleChange"
         :aria-label="label"
       >
+      <!-- prefix suffix 一般为图标 -->
       <!-- 前置内容 -->
       <span class="el-input__prefix" v-if="$slots.prefix || prefixIcon">
         <slot name="prefix"></slot>
@@ -104,6 +108,7 @@
       :aria-label="label"
     >
     </textarea>
+    <!-- 是否有启用输入长度限制 -->
     <span v-if="isWordLimitVisible && type === 'textarea'" class="el-input__count">{{ textLength }}/{{ upperLimit }}</span>
   </div>
 </template>
@@ -120,7 +125,7 @@
     componentName: 'ElInput',
 
     mixins: [emitter, Migrating],
-
+//  see https://cn.vuejs.org/v2/api/#inheritAttrs
     inheritAttrs: false,
 
     inject: {
@@ -134,10 +139,13 @@
 
     data() {
       return {
+        // 文本框高度样式
         textareaCalcStyle: {},
         hovering: false,
         focused: false,
+        //是否触发input事件标志位
         isComposing: false,
+        // 控制密码显示或隐藏
         passwordVisible: false
       };
     },
@@ -148,15 +156,18 @@
       resize: String,
       form: String,
       disabled: Boolean,
+      //是否只读
       readonly: Boolean,
       type: {
         type: String,
         default: 'text'
       },
+      // 文本框高度自适应
       autosize: {
         type: [Boolean, Object],
         default: false
       },
+      // 是否自动补全
       autocomplete: {
         type: String,
         default: 'off'
@@ -170,6 +181,7 @@
           return true;
         }
       },
+      // 校验事件,在form表单中用到
       validateEvent: {
         type: Boolean,
         default: true
@@ -177,6 +189,7 @@
       suffixIcon: String,
       prefixIcon: String,
       label: String,
+      // 是否可清空
       clearable: {
         type: Boolean,
         default: false
@@ -189,6 +202,7 @@
         type: Boolean,
         default: false
       },
+      // 输入框的tabindex
       tabindex: String
     },
 
@@ -196,12 +210,15 @@
       _elFormItemSize() {
         return (this.elFormItem || {}).elFormItemSize;
       },
+      // 是否有校验规则
       validateState() {
         return this.elFormItem ? this.elFormItem.validateState : '';
       },
+      //是否使用校验结果图标标志
       needStatusIcon() {
         return this.elForm ? this.elForm.statusIcon : false;
       },
+      //校验结果反馈图标
       validateIcon() {
         return {
           validating: 'el-icon-loading',
@@ -209,18 +226,22 @@
           error: 'el-icon-circle-close'
         }[this.validateState];
       },
+      // 文本框样式
       textareaStyle() {
         return merge({}, this.textareaCalcStyle, { resize: this.resize });
       },
       inputSize() {
         return this.size || this._elFormItemSize || (this.$ELEMENT || {}).size;
       },
+      //获取disabled值
       inputDisabled() {
         return this.disabled || (this.elForm || {}).disabled;
       },
+      //目前input的输入值
       nativeInputValue() {
         return this.value === null || this.value === undefined ? '' : String(this.value);
       },
+      // 是否显示close图标
       showClear() {
         return this.clearable &&
           !this.inputDisabled &&
@@ -228,12 +249,14 @@
           this.nativeInputValue &&
           (this.focused || this.hovering);
       },
+      //是否显示展示和隐藏密码图标
       showPwdVisible() {
         return this.showPassword &&
           !this.inputDisabled &&
           !this.readonly &&
           (!!this.nativeInputValue || this.focused);
       },
+      // 是否有输入长度限制
       isWordLimitVisible() {
         return this.showWordLimit &&
           this.$attrs.maxlength &&
@@ -242,9 +265,11 @@
           !this.readonly &&
           !this.showPassword;
       },
+      // 限制输入的最大长度
       upperLimit() {
         return this.$attrs.maxlength;
       },
+      // 返回输入的文字长度
       textLength() {
         if (typeof this.value === 'number') {
           return String(this.value).length;
@@ -252,6 +277,7 @@
 
         return (this.value || '').length;
       },
+      // 文字长度超过限制时使用is-exced样式
       inputExceed() {
         // show exceed style if length of initial value greater then maxlength
         return this.isWordLimitVisible &&
@@ -261,7 +287,9 @@
 
     watch: {
       value(val) {
+        //value值发生改变时 重新计算textarea的高度值
         this.$nextTick(this.resizeTextarea);
+        // 如果在form表单中有校验属性则发送值给form表单去校验
         if (this.validateEvent) {
           this.dispatch('ElFormItem', 'el.form.change', [val]);
         }
@@ -270,15 +298,19 @@
       // do not use v-model / :value in template
       // see: https://github.com/ElemeFE/element/issues/14521
       nativeInputValue() {
+        // 设置input的value值
         this.setNativeInputValue();
       },
       // when change between <input> and <textarea>,
       // update DOM dependent value and styles
       // https://github.com/ElemeFE/element/issues/14857
+      //当type值改变时
       type() {
         this.$nextTick(() => {
           this.setNativeInputValue();
+          //计算textarea的style
           this.resizeTextarea();
+          // 更新图标位置
           this.updateIconOffset();
         });
       }
@@ -291,6 +323,7 @@
       blur() {
         this.getInput().blur();
       },
+      //对版本更新时,props值变更进行提醒
       getMigratingConfig() {
         return {
           props: {
@@ -305,6 +338,7 @@
       handleBlur(event) {
         this.focused = false;
         this.$emit('blur', event);
+        // 如果有表单验证时,向最近的elformItem发送el.form.blur事件
         if (this.validateEvent) {
           this.dispatch('ElFormItem', 'el.form.blur', [this.value]);
         }
@@ -313,9 +347,11 @@
         this.getInput().select();
       },
       resizeTextarea() {
+        //用于ssr渲染则返回
         if (this.$isServer) return;
         const { autosize, type } = this;
         if (type !== 'textarea') return;
+        // 如果不开启autosize,则返回最小的一行高度
         if (!autosize) {
           this.textareaCalcStyle = {
             minHeight: calcTextareaHeight(this.$refs.textarea).minHeight
@@ -324,7 +360,7 @@
         }
         const minRows = autosize.minRows;
         const maxRows = autosize.maxRows;
-
+        // 获取要使内容不滚动所需要的高度值
         this.textareaCalcStyle = calcTextareaHeight(this.$refs.textarea, minRows, maxRows);
       },
       setNativeInputValue() {
@@ -337,15 +373,22 @@
         this.focused = true;
         this.$emit('focus', event);
       },
+      // 在切换为中文输入法时打拼音时并没有输入，此时不能触发input事件
       handleCompositionStart() {
         this.isComposing = true;
       },
       handleCompositionUpdate(event) {
+        // 在中文输入法中更新字母时
         const text = event.target.value;
         const lastCharacter = text[text.length - 1] || '';
+        // 判断对应字符是不是含有南北朝鲜字符（朝鲜和韩国）
         this.isComposing = !isKorean(lastCharacter);
       },
       handleCompositionEnd(event) {
+      //输入完成后将isComposing置为false, 并触发handleInput(event)
+      // compositionend会在input事件后触发，
+      // 此时isOnComposition还是true，无法触发andleInput中的emit
+      // 所以这里需要手动调用一次handleInput
         if (this.isComposing) {
           this.isComposing = false;
           this.handleInput(event);
@@ -359,11 +402,12 @@
         // hack for https://github.com/ElemeFE/element/issues/8548
         // should remove the following line when we don't support IE
         if (event.target.value === this.nativeInputValue) return;
-
+        //v-model发送输入值
         this.$emit('input', event.target.value);
 
         // ensure native input value is controlled
         // see: https://github.com/ElemeFE/element/issues/12850
+        // 确保发送了value值给父组件并刷新了this.value的值后,设置input.value
         this.$nextTick(this.setNativeInputValue);
       },
       handleChange(event) {
@@ -408,6 +452,13 @@
       getInput() {
         return this.$refs.input || this.$refs.textarea;
       },
+      //判断input输入框是否有后置内容
+      //插入了slot  suffix
+      // 定义了suffixIcon
+      //是否允许清空
+      //是否显示密码
+      //是否有输入限制
+      // 是否显示校验结果反馈图标
       getSuffixVisible() {
         return this.$slots.suffix ||
           this.suffixIcon ||

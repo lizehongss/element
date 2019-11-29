@@ -83,7 +83,7 @@
   @each $unit in $element {
     $currentSelector: #{$currentSelector + "." + $B + $element-separator + $unit + ","};
   }
-
+// 判断$elector是否包含--, is-, :
   @if hitAllSpecialNestRule($selector) {
     @at-root {
       #{$selector} {

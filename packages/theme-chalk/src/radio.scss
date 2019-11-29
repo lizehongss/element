@@ -3,6 +3,7 @@
 @import 'mixins/button';
 @import "common/var";
 
+// el-radio
 @include b(radio) {
   color: $--radio-font-color;
   font-weight: $--radio-font-weight;
@@ -14,15 +15,17 @@
   outline: none;
   font-size: $--font-size-base;
   margin-right: 30px;
+  // 禁用用户选择
   @include utils-user-select(none);
-
+// is-bordered
+//el-radio.is-bordered
   @include when(bordered) {
     padding: $--radio-bordered-padding;
     border-radius: $--border-radius-base;
     border: $--border-base;
     box-sizing: border-box;
     height: $--radio-bordered-height;
-
+//el-radion.is-bordered.is-checked
     &.is-checked {
       border-color: $--color-primary;
     }
@@ -36,7 +39,7 @@
       margin-left: 10px;
     }
   }
-
+  //el-radio--medium
   @include m(medium) {
     &.is-bordered {
       padding: $--radio-bordered-medium-padding;
@@ -51,6 +54,7 @@
       }
     }
   }
+  // el-radio--small
   @include m(small) {
     &.is-bordered {
       padding: $--radio-bordered-small-padding;
@@ -65,6 +69,7 @@
       }
     }
   }
+  //el-radio--mini
   @include m(mini) {
     &.is-bordered {
       padding: $--radio-bordered-mini-padding;
@@ -83,7 +88,7 @@
   &:last-child {
     margin-right: 0;
   }
-
+// el-radio__input
   @include e(input) {
     white-space: nowrap;
     cursor: pointer;
@@ -92,7 +97,7 @@
     line-height: 1;
     position: relative;
     vertical-align: middle;
-
+//el-radio__input.is-diasbled
     @include when(disabled) {
       .el-radio__inner {
         background-color: $--radio-disabled-input-fill;
@@ -191,7 +196,7 @@
       box-shadow: 0 0 2px 2px $--radio-input-border-color-hover;
     }
   }
-
+// .el-radio__label
   @include e(label) {
     font-size: $--radio-font-size;
     padding-left: 10px;

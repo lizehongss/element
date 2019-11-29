@@ -1,12 +1,12 @@
 @import "mixins/mixins";
 @import "mixins/_button";
 @import "common/var";
-
+// .el-radio-button
 @include b(radio-button) {
   position: relative;
   display: inline-block;
   outline: none;
-
+// .el-radio-button__inner
   @include e(inner) {
     display: inline-block;
     line-height: 1;
@@ -48,7 +48,7 @@
       box-shadow: none !important;
     }
   }
-
+  //el-radio-button__orig-radio
   @include e(orig-radio) {
     opacity: 0;
     outline: none;

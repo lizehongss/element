@@ -142,7 +142,10 @@ export const autoprefixer = function(style) {
 };
 
 export const kebabCase = function(str) {
+  // Foo Bar
   const hyphenateRE = /([^-])([A-Z])/g;
+  // 使用两个replace的原因
+  // AAAA", 第一次会变成: "A-AA-A", 第二次就可以彻底分割开了: "A-A-A-A"
   return str
     .replace(hyphenateRE, '$1-$2')
     .replace(hyphenateRE, '$1-$2')

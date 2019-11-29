@@ -23,13 +23,14 @@ import { kebabCase } from 'element-ui/src/utils/util';
 export default {
   mounted() {
     if (process.env.NODE_ENV === 'production') return;
-    if (!this.$vnode) return;
+    if (!this.$vnode) return; 
     const { props = {}, events = {} } = this.getMigratingConfig();
     const { data, componentOptions } = this.$vnode;
     const definedProps = data.attrs || {};
     const definedEvents = componentOptions.listeners || {};
-
+    // 如果在definePros引入了需要提示的props属性值,则在控制台打印提醒
     for (let propName in definedProps) {
+      // 转换字符串为 kebab case 如: FooBar => foo-bar
       propName = kebabCase(propName); // compatible with camel case
       if (props[propName]) {
         console.warn(`[Element Migrating][${this.$options.name}][Attribute]: ${props[propName]}`);
