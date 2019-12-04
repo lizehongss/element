@@ -104,7 +104,7 @@
       isDisabled() {
         return this.disabled || this._radioGroup.disabled || (this.elForm || {}).disabled;
       },
-      //与radio一样， tab只能访问到选中状态下的单选按钮
+      //  与radio一样， tab只能访问到选中状态下的单选按钮
       tabIndex() {
         return (this.isDisabled || (this._radioGroup && this.value !== this.label)) ? -1 : 0;
       }

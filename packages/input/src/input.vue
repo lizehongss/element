@@ -125,7 +125,7 @@
     componentName: 'ElInput',
 
     mixins: [emitter, Migrating],
-//  see https://cn.vuejs.org/v2/api/#inheritAttrs
+    // see https://cn.vuejs.org/v2/api/#inheritAttrs
     inheritAttrs: false,
 
     inject: {
@@ -143,7 +143,7 @@
         textareaCalcStyle: {},
         hovering: false,
         focused: false,
-        //是否触发input事件标志位
+        // 是否触发input事件标志位
         isComposing: false,
         // 控制密码显示或隐藏
         passwordVisible: false
@@ -156,7 +156,7 @@
       resize: String,
       form: String,
       disabled: Boolean,
-      //是否只读
+      // 是否只读
       readonly: Boolean,
       type: {
         type: String,
@@ -214,11 +214,11 @@
       validateState() {
         return this.elFormItem ? this.elFormItem.validateState : '';
       },
-      //是否使用校验结果图标标志
+      // 是否使用校验结果图标标志
       needStatusIcon() {
         return this.elForm ? this.elForm.statusIcon : false;
       },
-      //校验结果反馈图标
+      // 校验结果反馈图标
       validateIcon() {
         return {
           validating: 'el-icon-loading',
@@ -233,11 +233,11 @@
       inputSize() {
         return this.size || this._elFormItemSize || (this.$ELEMENT || {}).size;
       },
-      //获取disabled值
+      // 获取disabled值
       inputDisabled() {
         return this.disabled || (this.elForm || {}).disabled;
       },
-      //目前input的输入值
+      // 目前input的输入值
       nativeInputValue() {
         return this.value === null || this.value === undefined ? '' : String(this.value);
       },
@@ -249,7 +249,7 @@
           this.nativeInputValue &&
           (this.focused || this.hovering);
       },
-      //是否显示展示和隐藏密码图标
+      // 是否显示展示和隐藏密码图标
       showPwdVisible() {
         return this.showPassword &&
           !this.inputDisabled &&
@@ -287,7 +287,7 @@
 
     watch: {
       value(val) {
-        //value值发生改变时 重新计算textarea的高度值
+        // value值发生改变时 重新计算textarea的高度值
         this.$nextTick(this.resizeTextarea);
         // 如果在form表单中有校验属性则发送值给form表单去校验
         if (this.validateEvent) {
@@ -304,11 +304,11 @@
       // when change between <input> and <textarea>,
       // update DOM dependent value and styles
       // https://github.com/ElemeFE/element/issues/14857
-      //当type值改变时
+      // 当type值改变时
       type() {
         this.$nextTick(() => {
           this.setNativeInputValue();
-          //计算textarea的style
+          // 计算textarea的style
           this.resizeTextarea();
           // 更新图标位置
           this.updateIconOffset();
@@ -323,7 +323,7 @@
       blur() {
         this.getInput().blur();
       },
-      //对版本更新时,props值变更进行提醒
+      // 对版本更新时,props值变更进行提醒
       getMigratingConfig() {
         return {
           props: {
@@ -347,7 +347,7 @@
         this.getInput().select();
       },
       resizeTextarea() {
-        //用于ssr渲染则返回
+        // 用于ssr渲染则返回
         if (this.$isServer) return;
         const { autosize, type } = this;
         if (type !== 'textarea') return;
@@ -385,7 +385,7 @@
         this.isComposing = !isKorean(lastCharacter);
       },
       handleCompositionEnd(event) {
-      //输入完成后将isComposing置为false, 并触发handleInput(event)
+      // 输入完成后将isComposing置为false, 并触发handleInput(event)
       // compositionend会在input事件后触发，
       // 此时isOnComposition还是true，无法触发andleInput中的emit
       // 所以这里需要手动调用一次handleInput
@@ -402,7 +402,7 @@
         // hack for https://github.com/ElemeFE/element/issues/8548
         // should remove the following line when we don't support IE
         if (event.target.value === this.nativeInputValue) return;
-        //v-model发送输入值
+        // v-model发送输入值
         this.$emit('input', event.target.value);
 
         // ensure native input value is controlled
@@ -452,12 +452,12 @@
       getInput() {
         return this.$refs.input || this.$refs.textarea;
       },
-      //判断input输入框是否有后置内容
-      //插入了slot  suffix
+      // 判断input输入框是否有后置内容
+      // 插入了slot  suffix
       // 定义了suffixIcon
-      //是否允许清空
-      //是否显示密码
-      //是否有输入限制
+      // 是否允许清空
+      // 是否显示密码
+      // 是否有输入限制
       // 是否显示校验结果反馈图标
       getSuffixVisible() {
         return this.$slots.suffix ||

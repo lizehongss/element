@@ -23,7 +23,7 @@ export default {
   computed: {
     gutter() {
       let parent = this.$parent;
-      //向上寻找componentName为ElRow, 获取其gutter值
+      // 向上寻找componentName为ElRow, 获取其gutter值
       while (parent && parent.$options.componentName !== 'ElRow') {
         parent = parent.$parent;
       }
@@ -35,7 +35,7 @@ export default {
     let style = {};
 
     if (this.gutter) {
-      //设置间隔
+      // 设置间隔
       style.paddingLeft = this.gutter / 2 + 'px';
       style.paddingRight = style.paddingLeft;
     }

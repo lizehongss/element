@@ -75,7 +75,7 @@ export default function calcTextareaHeight(
 
   hiddenTextarea.setAttribute('style', `${contextStyle};${HIDDEN_STYLE}`);
   hiddenTextarea.value = targetElement.value || targetElement.placeholder || '';
-  //scrollHeight 的值等于该元素在不使用滚动条的情况下为了适应视口中所用内容所需的最小高度
+  // scrollHeight 的值等于该元素在不使用滚动条的情况下为了适应视口中所用内容所需的最小高度
   // 包括元素的padding，但不包括元素的border和margin
   let height = hiddenTextarea.scrollHeight;
   const result = {};
@@ -85,10 +85,10 @@ export default function calcTextareaHeight(
   // content-box的height只有内容区的值
   if (boxSizing === 'border-box') {
     height = height + borderSize;
-    //此时height值为 内容区高度+ paddingSize +borderSize
+    // 此时height值为 内容区高度+ paddingSize +borderSize
   } else if (boxSizing === 'content-box') {
     height = height - paddingSize;
-    //此时height值为 内容区高度 + paddingSize -paddingSize
+    // 此时height值为 内容区高度 + paddingSize -paddingSize
   }
 
   // hiddenTextarea的值为空时,获取当前hiddenTextarea的高度值
@@ -103,7 +103,7 @@ export default function calcTextareaHeight(
     if (boxSizing === 'border-box') {
       minHeight = minHeight + paddingSize + borderSize;
     }
-    //heiht取最大值
+    // heiht取最大值
     height = Math.max(minHeight, height);
     // result返回minHeight值
     result.minHeight = `${ minHeight }px`;
@@ -113,13 +113,13 @@ export default function calcTextareaHeight(
     if (boxSizing === 'border-box') {
       maxHeight = maxHeight + paddingSize + borderSize;
     }
-    //height取最小值
+    // height取最小值
     height = Math.min(maxHeight, height);
   }
   result.height = `${ height }px`;
-  //移除hiddenTextarea
+  // 移除hiddenTextarea
   hiddenTextarea.parentNode && hiddenTextarea.parentNode.removeChild(hiddenTextarea);
   hiddenTextarea = null;
-  //返回result值
+  // 返回result值
   return result;
 };

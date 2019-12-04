@@ -7,5 +7,5 @@
   - [x] el-radio
   - [x] el-radio-group
   - [x] el-radio-button
-  - [] el-checkbox
-  - [] el-input
+  - [x] el-checkbox
+  - [x] el-input

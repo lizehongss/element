@@ -56,7 +56,7 @@
     name: 'ElRadio',
 
     mixins: [Emitter],
-    //依赖注入
+    // 依赖注入
     inject: {
       elForm: {
         default: ''

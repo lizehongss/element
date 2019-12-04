@@ -42,7 +42,7 @@
       _elFormItemSize() {
         return (this.elFormItem || {}).elFormItemSize;
       },
-      //radio-group要渲染的标签
+      // radio-group要渲染的标签
       _elTag() {
         return (this.$vnode.data || {}).tag || 'div';
       },
@@ -53,7 +53,7 @@
     },
 
     created() {
-      //绑定handleChange事件，接收子组件返回的value值，并暴露事件change
+      // 绑定handleChange事件，接收子组件返回的value值，并暴露事件change
       this.$on('handleChange', value => {
         this.$emit('change', value);
       });

@@ -1,13 +1,13 @@
 @import "mixins/mixins";
 @import "common/var";
-
+// el-textarea
 @include b(textarea) {
   position: relative;
   display: inline-block;
   width: 100%;
   vertical-align: bottom;
   font-size: $--font-size-base;
-
+//el-textarea__inner
   @include e(inner) {
     display: block;
     resize: vertical;
@@ -45,7 +45,7 @@
     bottom: 5px;
     right: 10px;
   }
-
+// .el-textarea.is-disabled
   @include when(disabled) {
     .el-textarea__inner {
       background-color: $--input-disabled-fill;
@@ -59,6 +59,7 @@
     }
   }
 
+// .el-textarea.is-exceed
   @include when(exceed) {
     .el-textarea__inner {
       border-color: $--color-danger;
@@ -69,12 +70,13 @@
     }
   }
 }
-
+// el-input
 @include b(input) {
   position: relative;
   font-size: $--font-size-base;
   display: inline-block;
   width: 100%;
+// 滚动条样式
   @include scroll-bar;
 
   & .el-input__clear {
@@ -103,6 +105,7 @@
     }
   }
 
+  // el-input__inner
   @include e(inner) {
     -webkit-appearance: none;
     background-color: $--input-background-color;
@@ -133,7 +136,7 @@
       border-color: $--input-focus-border;
     }
   }
-
+// .el-input__suffix
   @include e(suffix) {
     position: absolute;
     height: 100%;
@@ -144,11 +147,11 @@
     transition: all .3s;
     pointer-events: none;
   }
-
+// .el-input__suffix-inner
   @include e(suffix-inner) {
     pointer-events: all;
   }
-
+// .el-input__prefix
   @include e(prefix) {
     position: absolute;
     height: 100%;
@@ -158,7 +161,7 @@
     color: $--input-icon-color;
     transition: all .3s;
   }
-
+// .el-input__icon
   @include e(icon) {
     height: 100%;
     width: 25px;
@@ -174,18 +177,18 @@
       vertical-align: middle;
     }
   }
-
+// .el-input__validateIcon
   @include e(validateIcon) {
     pointer-events: none;
   }
-
+// .el-input.is-active
   @include when(active) {
     .el-input__inner {
       outline: none;
       border-color: $--input-focus-border;
     }
   }
-
+//.el-input.is-disabled
   @include when(disabled) {
     .el-input__inner {
       background-color: $--input-disabled-fill;
@@ -202,7 +205,7 @@
       cursor: not-allowed;
     }
   }
-
+// .el-input.is-exceed
   @include when(exceed) {
     .el-input__inner {
       border-color: $--color-danger;
@@ -215,21 +218,24 @@
     }
   }
 
+// .el-input--suffix
   @include m(suffix) {
     .el-input__inner {
       padding-right: 30px;
     }
   }
 
+// .el-input--prefix
   @include m(prefix) {
     .el-input__inner {
       padding-left: 30px;
     }
   }
 
+// .el-input-medium
   @include m(medium) {
     font-size: $--input-medium-font-size;
-
+// .el-input-medium.el-input__inner
     @include e(inner) {
       height: $--input-medium-height;
       line-height: $--input-medium-height;
@@ -265,6 +271,7 @@
   }
 }
 
+//.el-input-group
 @include b(input-group) {
   line-height: normal;
   display: inline-table;
@@ -276,7 +283,7 @@
     vertical-align: middle;
     display: table-cell;
   }
-
+//.el-input-group__append, .el-input-group__prepend
   @include e((append, prepend)) {
     background-color: $--background-color-base;
     color: $--color-info;
@@ -314,19 +321,19 @@
       font-size: inherit;
     }
   }
-
+// .el-input-group__prepend
   @include e(prepend) {
     border-right: 0;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
   }
-
+// .el-input-group__append
   @include e(append) {
     border-left: 0;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
-
+// .el-input-group__prepend
   @include m(prepend) {
     .el-input__inner {
       border-top-left-radius: 0;
@@ -336,7 +343,7 @@
       border-color: transparent;
     }
   }
-
+// .el-input-append
   @include m(append) {
     .el-input__inner {
       border-top-right-radius: 0;

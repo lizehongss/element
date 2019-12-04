@@ -62,6 +62,7 @@
     mixins: [Emitter],
 
     inject: {
+      // 注入依赖
       elForm: {
         default: ''
       },
@@ -75,13 +76,17 @@
     data() {
       return {
         selfModel: false,
+        // 聚集焦点
         focus: false,
+        // 限制el-checked选择
         isLimitExceeded: false
       };
     },
 
     computed: {
+      // 当前el-checked的值,绑定在input上
       model: {
+        // 如果this.value为undefined时， model使用Boolearn值
         get() {
           return this.isGroup
             ? this.store : this.value !== undefined
@@ -90,6 +95,7 @@
 
         set(val) {
           if (this.isGroup) {
+            // 如果el-checkbox定义了min和max, 判断当前val值是否满足
             this.isLimitExceeded = false;
             (this._checkboxGroup.min !== undefined &&
               val.length < this._checkboxGroup.min &&
@@ -98,7 +104,7 @@
             (this._checkboxGroup.max !== undefined &&
               val.length > this._checkboxGroup.max &&
               (this.isLimitExceeded = true));
-
+            // val满足情况时, 使用dispath向最近的el-checkbox-group发送input事件
             this.isLimitExceeded === false &&
             this.dispatch('ElCheckboxGroup', 'input', [val]);
           } else {
@@ -107,7 +113,7 @@
           }
         }
       },
-
+      // 是否勾选
       isChecked() {
         if ({}.toString.call(this.model) === '[object Boolean]') {
           return this.model;
@@ -117,7 +123,7 @@
           return this.model === this.trueLabel;
         }
       },
-
+      // 判断父组件是否有ElcheckboxGroup
       isGroup() {
         let parent = this.$parent;
         while (parent) {
@@ -130,31 +136,33 @@
         }
         return false;
       },
-
+      // 获取el-checkboxGroup的v-model值或者组件的v-model值
       store() {
         return this._checkboxGroup ? this._checkboxGroup.value : this.value;
       },
 
       /* used to make the isDisabled judgment under max/min props */
+      //存在max和min时, 根据情况判断是否disabled
       isLimitDisabled() {
         const { max, min } = this._checkboxGroup;
         return !!(max || min) &&
           (this.model.length >= max && !this.isChecked) ||
           (this.model.length <= min && this.isChecked);
       },
-
+      // 获取disabled值
       isDisabled() {
         return this.isGroup
           ? this._checkboxGroup.disabled || this.disabled || (this.elForm || {}).disabled || this.isLimitDisabled
           : this.disabled || (this.elForm || {}).disabled;
       },
-
+      // 在form表单中使用时获取size
       _elFormItemSize() {
         return (this.elFormItem || {}).elFormItemSize;
       },
-
+      // 获取组件的size
       checkboxSize() {
         const temCheckboxSize = this.size || this._elFormItemSize || (this.$ELEMENT || {}).size;
+        // 是否在el-checkbox-group中使用
         return this.isGroup
           ? this._checkboxGroup.checkboxGroupSize || temCheckboxSize
           : temCheckboxSize;
@@ -164,7 +172,7 @@
     props: {
       value: {},
       label: {},
-      indeterminate: Boolean,
+      indeterminate: Boolean, // 不确定状态
       disabled: Boolean,
       checked: Boolean,
       name: String,
@@ -196,6 +204,7 @@
           value = this.falseLabel === undefined ? false : this.falseLabel;
         }
         this.$emit('change', value, ev);
+        // 等待 this._checkboxGroup 的值更新
         this.$nextTick(() => {
           if (this.isGroup) {
             this.dispatch('ElCheckboxGroup', 'change', [this._checkboxGroup.value]);
@@ -205,6 +214,7 @@
     },
 
     created() {
+      // 如果默认为勾选, 调用addToStore()方法修改this.model
       this.checked && this.addToStore();
     },
     mounted() { // 为indeterminate元素 添加aria-controls 属性
@@ -214,6 +224,7 @@
     },
 
     watch: {
+      // 如果在form表单中使用时,向el-form-item发送change事件
       value(value) {
         this.dispatch('ElFormItem', 'el.form.change', value);
       }
