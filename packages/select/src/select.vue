@@ -1,14 +1,18 @@
 <template>
+  <!-- v-clickoutside指令用于在el-select外部点击时，关闭下拉菜单-->
   <div
     class="el-select"
     :class="[selectSize ? 'el-select--' + selectSize : '']"
     @click.stop="toggleMenu"
     v-clickoutside="handleClose">
+    <!-- 多选时tag显示 -->
     <div
       class="el-select__tags"
       v-if="multiple"
       ref="tags"
       :style="{ 'max-width': inputWidth - 32 + 'px', width: '100%' }">
+      <!-- 使用el-tag组件 显示多选内容 -->
+      <!-- 多选时将选中值按文字形式展示时  -->
       <span v-if="collapseTags && selected.length">
         <el-tag
           :closable="!selectDisabled"
@@ -17,8 +21,9 @@
           type="info"
           @close="deleteTag($event, selected[0])"
           disable-transitions>
-          <span class="el-select__tags-text">{{ selected[0].currentLabel }}</span>
+          <span class="el-select__tags-text">{{ selected[0].currentLabel }}</span>  
         </el-tag>
+        <!-- 多选择大于1时，使用 +1, +2, +3显示 -->
         <el-tag
           v-if="selected.length > 1"
           :closable="false"
@@ -41,7 +46,7 @@
           <span class="el-select__tags-text">{{ item.currentLabel }}</span>
         </el-tag>
       </transition-group>
-
+      <!-- 可搜索时使用 -->
       <input
         type="text"
         class="el-select__input"
@@ -108,6 +113,7 @@
         ref="popper"
         :append-to-body="popperAppendToBody"
         v-show="visible && emptyText !== false">
+        <!-- el-option 置于滚动组件中 -->
         <el-scrollbar
           tag="ul"
           wrap-class="el-select-dropdown__wrap"
@@ -167,7 +173,7 @@
         default: ''
       }
     },
-
+    // 向子组件依赖注入select
     provide() {
       return {
         'select': this
@@ -180,10 +186,12 @@
       },
 
       readonly() {
+        // 多选， 不可搜索时只读
         return !this.filterable || this.multiple || (!isIE() && !isEdge() && !this.visible);
       },
 
       showClose() {
+        // 判断hasValue有值
         let hasValue = this.multiple
           ? Array.isArray(this.value) && this.value.length > 0
           : this.value !== undefined && this.value !== null && this.value !== '';
@@ -195,42 +203,47 @@
       },
 
       iconClass() {
+        // 为远程和搜索时， 不显示上三角和下三角图标'
+        // 根据this.visible判断图标
         return this.remote && this.filterable ? '' : (this.visible ? 'arrow-up is-reverse' : 'arrow-up');
       },
-
+      // 根据是否远程设置防抖时间
       debounce() {
         return this.remote ? 300 : 0;
       },
-
+      // 下拉菜单提示文字内容
       emptyText() {
         if (this.loading) {
+          // 提示加载 
           return this.loadingText || this.t('el.select.loading');
         } else {
           if (this.remote && this.query === '' && this.options.length === 0) return false;
           if (this.filterable && this.query && this.options.length > 0 && this.filteredOptionsCount === 0) {
+            // 提示暂无匹配
             return this.noMatchText || this.t('el.select.noMatch');
           }
           if (this.options.length === 0) {
+            // 提示暂无数据
             return this.noDataText || this.t('el.select.noData');
           }
         }
         return null;
       },
-
+      // 是否显示用户创建的自定义条目
       showNewOption() {
         let hasExistingOption = this.options.filter(option => !option.created)
           .some(option => option.currentLabel === this.query);
         return this.filterable && this.allowCreate && this.query !== '' && !hasExistingOption;
       },
-
+      // 获取size值
       selectSize() {
         return this.size || this._elFormItemSize || (this.$ELEMENT || {}).size;
       },
-
+      // 获取disabled值
       selectDisabled() {
         return this.disabled || (this.elForm || {}).disabled;
       },
-
+      // 根据el-select有大小选择el-tags的size大小
       collapseTagSize() {
         return ['small', 'mini'].indexOf(this.selectSize) > -1
           ? 'mini'
@@ -245,13 +258,14 @@
       ElTag,
       ElScrollbar
     },
-
+    // 自定义指令
     directives: { Clickoutside },
 
     props: {
+      // select input 的 name 属性
       name: String,
       id: String,
-      value: {
+      value: {  
         required: true
       },
       autocomplete: {
@@ -267,38 +281,54 @@
           return true;
         }
       },
+      // 对于不可搜索的 Select，是否在输入框获得焦点后自动弹出选项菜单
       automaticDropdown: Boolean,
       size: String,
       disabled: Boolean,
+      // 是否可以清空选项
       clearable: Boolean,
       filterable: Boolean,
+      // 是否允许用户创建新条目，需配合 filterable 使用 
       allowCreate: Boolean,
       loading: Boolean,
+      // Select 下拉框的类名
       popperClass: String,
+      // 	是否为远程搜索
       remote: Boolean,
+      // 加载时的文字
       loadingText: String,
+      // 搜索条件无匹配时显示的文字
       noMatchText: String,
+      // 选项为空时显示的文字
       noDataText: String,
       remoteMethod: Function,
       filterMethod: Function,
+      // 是否多选
       multiple: Boolean,
+      // 多选时用户最多可以选择的项目数
       multipleLimit: {
         type: Number,
         default: 0
       },
+      // 占位符 
       placeholder: {
         type: String,
         default() {
           return t('el.select.placeholder');
         }
       },
+      // 在输入框按下回车，选择第一个匹配项。需配合 filterable 或 remote 使用	
       defaultFirstOption: Boolean,
+      // 多选且可搜索时，是否在选中一个选项后保留当前的搜索关键词
       reserveKeyword: Boolean,
+      // 作为 value 唯一标识的键名，绑定值为对象类型时必填
       valueKey: {
         type: String,
         default: 'value'
       },
+      // 多选时是否将选中值按文字的形式展示
       collapseTags: Boolean,
+      // 是否将弹出框插入至 body 元素。
       popperAppendToBody: {
         type: Boolean,
         default: true
@@ -318,13 +348,16 @@
         cachedPlaceHolder: '',
         optionsCount: 0,
         filteredOptionsCount: 0,
+        // 下拉框是否隐藏
         visible: false,
         softFocus: false,
         selectedLabel: '',
         hoverIndex: -1,
         query: '',
         previousQuery: null,
+        // 是否hover到input 输入框， 主要用来显示清空输入内容按钮
         inputHovering: false,
+        // 输入框默认值
         currentPlaceholder: '',
         menuVisibleOnFocus: false,
         isOnComposition: false,
@@ -333,107 +366,144 @@
     },
 
     watch: {
+      // disabled值改变时, restetInputHeight
       selectDisabled() {
         this.$nextTick(() => {
           this.resetInputHeight();
         });
       },
-
+      // 默认值改变时, 更新cachedPlaceHolder, currentPlaceholder
       placeholder(val) {
         this.cachedPlaceHolder = this.currentPlaceholder = val;
       },
-
+      // v-model的值改变时
       value(val, oldVal) {
+        // 如果是多选
         if (this.multiple) {
+          // resetInputHeight
           this.resetInputHeight();
+          // val有值，或者在搜索时有query，清空输入框默认值
           if ((val && val.length > 0) || (this.$refs.input && this.query !== '')) {
             this.currentPlaceholder = '';
           } else {
+            // 如果无值使用cachePlaceHolder
             this.currentPlaceholder = this.cachedPlaceHolder;
           }
+          // 如果是可搜索的，且不保留搜索关键词时，query置空
           if (this.filterable && !this.reserveKeyword) {
             this.query = '';
+            // 改变query值时调用handleQueryChange
             this.handleQueryChange(this.query);
           }
         }
+        // 设置el-option选中值
         this.setSelected();
         if (this.filterable && !this.multiple) {
           this.inputLength = 20;
         }
+        // 如果在form表单中使用，而且值不相同， el-form-item发送change事件
         if (!valueEquals(val, oldVal)) {
           this.dispatch('ElFormItem', 'el.form.change', val);
         }
       },
-
+      // 下拉框显示隐匿时
       visible(val) {
+        // 下拉框隐藏时
         if (!val) {
+          // 广播 el-selectDropdown触发destroyPopper事件，销毁下拉框
           this.broadcast('ElSelectDropdown', 'destroyPopper');
+          // 如果是可搜索的,移除焦点
           if (this.$refs.input) {
             this.$refs.input.blur();
           }
+          // 查询参数为空
           this.query = '';
           this.previousQuery = null;
+          // el-input v-model值为空
           this.selectedLabel = '';
           this.inputLength = 20;
+          // 下拉框不聚焦
           this.menuVisibleOnFocus = false;
+          // 重置hoverIndex
           this.resetHoverIndex();
+          // resetHoverIndex使用了setTimeout，所以使用$nextTick`
           this.$nextTick(() => {
             if (this.$refs.input &&
               this.$refs.input.value === '' &&
               this.selected.length === 0) {
+                // 可搜索并且value值为空， 无选中值时，输入框默认值为cachePlaceHolder
               this.currentPlaceholder = this.cachedPlaceHolder;
             }
           });
+          // 如果不是多选
           if (!this.multiple) {
+            //已有选中值
             if (this.selected) {
+              // 允许搜索且用户创建新条目存在时
               if (this.filterable && this.allowCreate &&
                 this.createdSelected && this.createdLabel) {
+              // el-input的selectedLabel值为createdLabel
                 this.selectedLabel = this.createdLabel;
               } else {
+                // 选择当前选中的值
                 this.selectedLabel = this.selected.currentLabel;
               }
               if (this.filterable) this.query = this.selectedLabel;
             }
 
             if (this.filterable) {
+              // 搜索时的输入框为cachedPlaceHolder
               this.currentPlaceholder = this.cachedPlaceHolder;
             }
           }
+          // 下拉框显示时
         } else {
+          // 广播el-select-dropdown触发updatePopper事件
           this.broadcast('ElSelectDropdown', 'updatePopper');
+          // 可搜索时
           if (this.filterable) {
             this.query = this.remote ? '' : this.selectedLabel;
+            // 调用handleQueryChange
             this.handleQueryChange(this.query);
             if (this.multiple) {
               this.$refs.input.focus();
             } else {
+              // 不是多选且不是远程时
               if (!this.remote) {
+                // 调用queryChange搜索满足条件的el-option
                 this.broadcast('ElOption', 'queryChange', '');
                 this.broadcast('ElOptionGroup', 'queryChange');
               }
 
               if (this.selectedLabel) {
+                // 将选中值置为默认值
                 this.currentPlaceholder = this.selectedLabel;
                 this.selectedLabel = '';
               }
             }
           }
         }
+        // 触发visible-change事件
         this.$emit('visible-change', val);
       },
-
+      // 每一个el-option创建时都会向optonspush组件实例
+      // this.select.options.push(this)
       options() {
         if (this.$isServer) return;
         this.$nextTick(() => {
+          // 当el-options更新时, el-select-dropdown也要更新定位位置
           this.broadcast('ElSelectDropdown', 'updatePopper');
         });
+        // 如果是多选
         if (this.multiple) {
+          // resetInputHeight()
           this.resetInputHeight();
         }
         let inputs = this.$el.querySelectorAll('input');
         if ([].indexOf.call(inputs, document.activeElement) === -1) {
           this.setSelected();
         }
+        // 如果是多选或者远程并且选择第一个匹配项
         if (this.defaultFirstOption && (this.filterable || this.remote) && this.filteredOptionsCount) {
           this.checkDefaultFirstOption();
         }
@@ -441,6 +511,7 @@
     },
 
     methods: {
+      // 为中文输入时,设置isOncomposition标志位
       handleComposition(event) {
         const text = event.target.value;
         if (event.type === 'compositionend') {
@@ -451,44 +522,57 @@
           this.isOnComposition = !isKorean(lastCharacter);
         }
       },
+      // query参数改变时触发
       handleQueryChange(val) {
+        // 与前一搜索值相同时或者没输入完成时，返回
         if (this.previousQuery === val || this.isOnComposition) return;
         if (
           this.previousQuery === null &&
           (typeof this.filterMethod === 'function' || typeof this.remoteMethod === 'function')
         ) {
+          // 用户自定义了搜索方法和远程搜索方法时返回
           this.previousQuery = val;
           return;
         }
         this.previousQuery = val;
+        // 触发下拉框更新
         this.$nextTick(() => {
           if (this.visible) this.broadcast('ElSelectDropdown', 'updatePopper');
         });
+        // hoverIndex重置
         this.hoverIndex = -1;
+        // 如果是多选而且可搜索
         if (this.multiple && this.filterable) {
           this.$nextTick(() => {
+            // 设置ref="input"的长度
             const length = this.$refs.input.value.length * 15 + 20;
             this.inputLength = this.collapseTags ? Math.min(50, length) : length;
             this.managePlaceholder();
+            // resetInputHeight
             this.resetInputHeight();
           });
         }
         if (this.remote && typeof this.remoteMethod === 'function') {
+          // 远程方法存在时，取消选中
           this.hoverIndex = -1;
           this.remoteMethod(val);
         } else if (typeof this.filterMethod === 'function') {
           this.filterMethod(val);
           this.broadcast('ElOptionGroup', 'queryChange');
         } else {
+          // 在el-option中搜索
+          // 计算options个数
           this.filteredOptionsCount = this.optionsCount;
+          /// el-option中不符合条件的filteredOptionsCount--
           this.broadcast('ElOption', 'queryChange', val);
           this.broadcast('ElOptionGroup', 'queryChange');
         }
         if (this.defaultFirstOption && (this.filterable || this.remote) && this.filteredOptionsCount) {
+          // 选择第一个匹配项
           this.checkDefaultFirstOption();
         }
       },
-
+      // 自动滚动到所指定的option
       scrollToOption(option) {
         const target = Array.isArray(option) && option[0] ? option[0].$el : option.$el;
         if (this.$refs.popper && target) {
@@ -497,11 +581,11 @@
         }
         this.$refs.scrollbar && this.$refs.scrollbar.handleScroll();
       },
-
+       //  进入el-select-dropdown之前设定滚动到选中的el-option
       handleMenuEnter() {
         this.$nextTick(() => this.scrollToOption(this.selected));
       },
-
+      // 发送值改变
       emitChange(val) {
         if (!valueEquals(this.value, val)) {
           this.$emit('change', val);
@@ -571,6 +655,7 @@
               this.menuVisibleOnFocus = true;
             }
           }
+          // 发送focus事件
           this.$emit('focus', event);
         } else {
           this.softFocus = false;
@@ -639,7 +724,7 @@
         this.inputLength = this.$refs.input.value.length * 15 + 20;
         this.resetInputHeight();
       },
-
+      // 
       resetInputHeight() {
         if (this.collapseTags && !this.filterable) return;
         this.$nextTick(() => {
@@ -729,7 +814,7 @@
           return index;
         }
       },
-
+      // 显示下拉框
       toggleMenu() {
         if (!this.selectDisabled) {
           if (this.menuVisibleOnFocus) {
@@ -790,6 +875,7 @@
       },
 
       resetInputWidth() {
+        // 获取el-input 的宽度
         this.inputWidth = this.$refs.reference.$el.getBoundingClientRect().width;
       },
 
@@ -797,7 +883,7 @@
         this.resetInputWidth();
         if (this.multiple) this.resetInputHeight();
       },
-
+      // 选择第一个匹配项
       checkDefaultFirstOption() {
         this.hoverIndex = -1;
         // highlight the created option
@@ -845,7 +931,7 @@
       if (!this.multiple && Array.isArray(this.value)) {
         this.$emit('input', '');
       }
-
+      // 远程搜索时防抖
       this.debouncedOnInputChange = debounce(this.debounce, () => {
         this.onInputChange();
       });
@@ -872,6 +958,7 @@
           mini: 28
         };
         const input = reference.$el.querySelector('input');
+        // el-input的高度
         this.initialInputHeight = input.getBoundingClientRect().height || sizeMap[this.selectSize];
       }
       if (this.remote && this.multiple) {

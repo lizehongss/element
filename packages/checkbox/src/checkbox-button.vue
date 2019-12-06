@@ -45,7 +45,8 @@
 </template>
 <script>
   import Emitter from 'element-ui/src/mixins/emitter';
-
+  // checkbox-button 与 checkbox大致相同
+  // 不同的是父组件一定有el-checkboxGroup
   export default {
     name: 'ElCheckboxButton',
 
@@ -127,11 +128,11 @@
         }
         return false;
       },
-
+      // 获取el-checkboxGroup的值
       store() {
         return this._checkboxGroup ? this._checkboxGroup.value : this.value;
       },
-
+      // 选中时的样式
       activeStyle() {
         return {
           backgroundColor: this._checkboxGroup.fill || '',

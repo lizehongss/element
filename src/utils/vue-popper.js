@@ -97,12 +97,15 @@ export default {
       if (!popper || !reference) return;
       if (this.visibleArrow) this.appendArrow(popper);
       if (this.appendToBody) document.body.appendChild(this.popperElm);
+      // 如果this.popperJS已经存在,销毁它
       if (this.popperJS && this.popperJS.destroy) {
         this.popperJS.destroy();
       }
 
       options.placement = this.currentPlacement;
+      // 元素位置偏移量
       options.offset = this.offset;
+      // 箭头偏移量
       options.arrowOffset = this.arrowOffset;
       this.popperJS = new PopperJS(reference, popper, options);
       this.popperJS.onCreate(_ => {
@@ -156,7 +159,8 @@ export default {
         ? this.transformOrigin
         : ['top', 'bottom'].indexOf(placement) > -1 ? `center ${ origin }` : `${ origin } center`;
     },
-
+    // 添加箭头
+    // <div x-arrow class="popper__arrow"></div>
     appendArrow(element) {
       let hash;
       if (this.appended) {

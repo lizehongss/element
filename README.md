@@ -8,4 +8,9 @@
   - [x] el-radio-group
   - [x] el-radio-button
   - [x] el-checkbox
+  - [x] el-checkbox-button
+  - [x] el-checkbox-group
   - [x] el-input
+  - [.] el-autocomplete
+  - [.] el-input-number
+  - [.] el-select

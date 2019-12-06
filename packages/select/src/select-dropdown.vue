@@ -18,6 +18,7 @@
     mixins: [Popper],
 
     props: {
+      // 默认位置
       placement: {
         default: 'bottom-start'
       },
@@ -63,8 +64,11 @@
     },
 
     mounted() {
+      // referenceElm为el-select中的el-input组件元素
       this.referenceElm = this.$parent.$refs.reference.$el;
       this.$parent.popperElm = this.popperElm = this.$el;
+      // 在当前组件上绑定事件
+      // <select-dropdown :destroyPopper ="destroyPopper"></select-dropdown>
       this.$on('updatePopper', () => {
         if (this.$parent.visible) this.updatePopper();
       });

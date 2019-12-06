@@ -1,14 +1,16 @@
 import Vue from 'vue';
 
 export default function scrollIntoView(container, selected) {
+  // 服务器渲染返回
   if (Vue.prototype.$isServer) return;
-
+  // 如果selected不存在, container scrollTop 置为0
   if (!selected) {
     container.scrollTop = 0;
     return;
   }
 
   const offsetParents = [];
+  // 返回一个指向最近的（指包含层级上的最近）包含该元素的定位元素或者最近的 table,td,th,body元素
   let pointer = selected.offsetParent;
   while (pointer && container !== pointer && container.contains(pointer)) {
     offsetParents.push(pointer);

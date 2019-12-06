@@ -25,8 +25,9 @@ export function toObject(arr) {
   }
   return res;
 };
-
+// 取object中的最后一个prop属性值
 export const getValueByPath = function(object, prop) {
+  console.log(prop, 'prop')
   prop = prop || '';
   const paths = prop.split('.');
   let current = object;
@@ -113,11 +114,13 @@ export const coerceTruthyValueToArray = function(val) {
     return [];
   }
 };
-
+// 判断是否是IE
 export const isIE = function() {
+  // documentMode 属性返回浏览器渲染文档的模式.
+  // documentMode 是 IE 浏览器特定属性，在IE8及之后的IE版本都支持该属性。
   return !Vue.prototype.$isServer && !isNaN(Number(document.documentMode));
 };
-
+// 判断是否是edge
 export const isEdge = function() {
   return !Vue.prototype.$isServer && navigator.userAgent.indexOf('Edge') > -1;
 };

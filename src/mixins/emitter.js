@@ -3,6 +3,7 @@ function broadcast(componentName, eventName, params) {
     var name = child.$options.componentName;
 
     if (name === componentName) {
+      // 找到组件， 在child组件上触发eventName事件
       child.$emit.apply(child, [eventName].concat(params));
     } else {
       broadcast.apply(child, [componentName, eventName].concat([params]));
@@ -28,6 +29,7 @@ export default {
       }
     },
     broadcast(componentName, eventName, params) {
+      // 事件广播
       broadcast.call(this, componentName, eventName, params);
     }
   }

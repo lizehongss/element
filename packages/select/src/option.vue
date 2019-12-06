@@ -98,6 +98,7 @@
     },
 
     methods: {
+      // 判断a, b是否相等
       isEqual(a, b) {
         if (!this.isObject) {
           return a === b;
@@ -106,7 +107,7 @@
           return getValueByPath(a, valueKey) === getValueByPath(b, valueKey);
         }
       },
-
+      // 判断arr是否含有target
       contains(arr = [], target) {
         if (!this.isObject) {
           return arr && arr.indexOf(target) > -1;
@@ -117,17 +118,17 @@
           });
         }
       },
-
+      
       handleGroupDisabled(val) {
         this.groupDisabled = val;
       },
-
+      // 设置select的hoverIndex
       hoverItem() {
         if (!this.disabled && !this.groupDisabled) {
           this.select.hoverIndex = this.select.options.indexOf(this);
         }
       },
-
+      // 发送handleOptionClick给el-select
       selectOptionClick() {
         if (this.disabled !== true && this.groupDisabled !== true) {
           this.dispatch('ElSelect', 'handleOptionClick', [this, true]);
@@ -135,6 +136,7 @@
       },
 
       queryChange(query) {
+        // 过滤不符合搜索条件的el-option
         this.visible = new RegExp(escapeRegexpString(query), 'i').test(this.currentLabel) || this.created;
         if (!this.visible) {
           this.select.filteredOptionsCount--;
@@ -143,11 +145,13 @@
     },
 
     created() {
+      // 将this push进this.select.options 和 this.select.cachedOptions
       this.select.options.push(this);
       this.select.cachedOptions.push(this);
+      // number + 1
       this.select.optionsCount++;
       this.select.filteredOptionsCount++;
-
+      // 绑定事件
       this.$on('queryChange', this.queryChange);
       this.$on('handleGroupDisabled', this.handleGroupDisabled);
     },
