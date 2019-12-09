@@ -11,6 +11,6 @@
   - [x] el-checkbox-button
   - [x] el-checkbox-group
   - [x] el-input
-  - [.] el-autocomplete
-  - [.] el-input-number
-  - [.] el-select
+  - [ ] el-autocomplete
+  - [ ] el-input-number
+  - [x] el-select

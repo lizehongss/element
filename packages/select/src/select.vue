@@ -591,8 +591,9 @@
           this.$emit('change', val);
         }
       },
-
+      // 根据value值获取option，在cachedOptions中有则返回，无则新建
       getOption(value) {
+        // 判断value值属性
         let option;
         const isObject = Object.prototype.toString.call(value).toLowerCase() === '[object object]';
         const isNull = Object.prototype.toString.call(value).toLowerCase() === '[object null]';
@@ -620,7 +621,7 @@
         }
         return newOption;
       },
-
+      // 设置选中的值
       setSelected() {
         if (!this.multiple) {
           let option = this.getOption(this.value);
@@ -646,10 +647,11 @@
           this.resetInputHeight();
         });
       },
-
+      // input focus时触发
       handleFocus(event) {
         if (!this.softFocus) {
           if (this.automaticDropdown || this.filterable) {
+            //  展开下拉框
             this.visible = true;
             if (this.filterable) {
               this.menuVisibleOnFocus = true;
@@ -661,12 +663,12 @@
           this.softFocus = false;
         }
       },
-
+      // input失去焦点时调用
       blur() {
         this.visible = false;
         this.$refs.reference.blur();
       },
-
+      // el-input失去焦点时调用
       handleBlur(event) {
         setTimeout(() => {
           if (this.isSilentBlur) {
@@ -677,15 +679,15 @@
         }, 50);
         this.softFocus = false;
       },
-
+      // 点击清除事件
       handleClearClick(event) {
         this.deleteSelected(event);
       },
-
+      // 销毁popper
       doDestroy() {
         this.$refs.popper && this.$refs.popper.doDestroy();
       },
-
+      // 在组件外部点击时,关闭下拉框
       handleClose() {
         this.visible = false;
       },
@@ -703,7 +705,7 @@
         option.hitState = !option.hitState;
         return option.hitState;
       },
-
+      // 在支持多选可搜索时, delete键和Backspace删除事件, 第一次按下时只对tags描边,第二次删除
       deletePrevTag(e) {
         if (e.target.value.length <= 0 && !this.toggleLastOptionHitState()) {
           const value = this.value.slice();
@@ -718,8 +720,9 @@
           this.currentPlaceholder = this.$refs.input.value ? '' : this.cachedPlaceHolder;
         }
       },
-
+    // input按下键时触发
       resetInputState(e) {
+        // 如果不是按下Backspace tag不描边
         if (e.keyCode !== 8) this.toggleLastOptionHitState(false);
         this.inputLength = this.$refs.input.value.length * 15 + 20;
         this.resetInputHeight();
@@ -744,7 +747,7 @@
           }
         });
       },
-
+      // 重置resetHoverIndex
       resetHoverIndex() {
         setTimeout(() => {
           if (!this.multiple) {
@@ -758,7 +761,7 @@
           }
         }, 300);
       },
-
+      //el-option click时触发
       handleOptionSelect(option, byClick) {
         if (this.multiple) {
           const value = (this.value || []).slice();
@@ -782,7 +785,8 @@
           this.visible = false;
         }
         this.isSilentBlur = byClick;
-        this.setSoftFocus();
+        // 设置焦点
+        this.setSoftFocus();  
         if (this.visible) return;
         this.$nextTick(() => {
           this.scrollToOption(option);
@@ -796,7 +800,7 @@
           input.focus();
         }
       },
-
+      // 获取索引
       getValueIndex(arr = [], value) {
         const isObject = Object.prototype.toString.call(value).toLowerCase() === '[object object]';
         if (!isObject) {
@@ -827,7 +831,7 @@
           }
         }
       },
-
+      // 按下enter 时选中option
       selectOption() {
         if (!this.visible) {
           this.toggleMenu();
@@ -837,7 +841,7 @@
           }
         }
       },
-
+      // 清除所有选择
       deleteSelected(event) {
         event.stopPropagation();
         const value = this.multiple ? [] : '';
@@ -846,7 +850,7 @@
         this.visible = false;
         this.$emit('clear');
       },
-
+      // 删除某一个tag
       deleteTag(event, tag) {
         let index = this.selected.indexOf(tag);
         if (index > -1 && !this.selectDisabled) {
@@ -858,14 +862,14 @@
         }
         event.stopPropagation();
       },
-
+      // 输入改变时
       onInputChange() {
         if (this.filterable && this.query !== this.selectedLabel) {
           this.query = this.selectedLabel;
           this.handleQueryChange(this.query);
         }
       },
-
+      // 在el-option组件中调用,销毁el-option
       onOptionDestroy(index) {
         if (index > -1) {
           this.optionsCount--;
@@ -878,7 +882,7 @@
         // 获取el-input 的宽度
         this.inputWidth = this.$refs.reference.$el.getBoundingClientRect().width;
       },
-
+      // 重置inputWidth和height
       handleResize() {
         this.resetInputWidth();
         if (this.multiple) this.resetInputHeight();
