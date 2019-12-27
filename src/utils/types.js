@@ -15,6 +15,7 @@ export const isFunction = (functionToCheck) => {
   return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
 };
 
+// val值是否未定义
 export const isUndefined = (val)=> {
   return val === void 0;
 };
