@@ -30,17 +30,28 @@ import {
 
 const { keys: KeyCode } = AriaUtils;
 const DefaultProps = {
+  // 次级菜单的展开方式
   expandTrigger: 'click', // or hover
+  // 是否多选
   multiple: false,
+  // 是否严格的遵守父子节点不互相关联
   checkStrictly: false, // whether all nodes can be selected
+  // 在选中节点改变时，是否返回由该节点所在的各级菜单的值所组成的数组，若设置 false，则只返回该节点的值
   emitPath: true, // wether to emit an array of all levels value in which node is located
+  // 是否动态加载子节点
   lazy: false,
+  // 加载动态数据的方法
   lazyLoad: noop,
+  // 指定选项的值为选项对象的某个属性值
   value: 'value',
+  // 指定选项标签为选项对象的某个属性值
   label: 'label',
+  // 指定选项的子选项为选项对象的某个属性值
   children: 'children',
   leaf: 'leaf',
+  // 指定选项的禁用为选项对象的某个属性值
   disabled: 'disabled',
+  // 指定选项的叶子节点的标志位为选项对象的某个属性值
   hoverThreshold: 500
 };
 

@@ -14,3 +14,5 @@
   - [ ] el-autocomplete
   - [ ] el-input-number
   - [x] el-select
+  - [x] el-cascader
+  - [x] el-switch
