@@ -1,4 +1,8 @@
 <template>
+<!-- 根据vertical是否坚向设置class为is-vertical -->
+<!-- 根据showInput是否显示输入框设置el-sider--with-input -->
+
+<!-- div为整个组件的容器 -->
   <div
     class="el-slider"
     :class="{ 'is-vertical': vertical, 'el-slider--with-input': showInput }"
@@ -8,6 +12,11 @@
     :aria-orientation="vertical ? 'vertical': 'horizontal'"
     :aria-disabled="sliderDisabled"
   >
+  <!-- 是否显示输入框 -->
+  <!-- 是否禁用 -->
+  <!--一输入框改变时发送emit事件 -->
+  <!-- control属性为是否显示label -->
+  <!-- inputSize为输入框大小 -->
     <el-input-number
       v-model="firstValue"
       v-if="showInput && !range"
@@ -22,22 +31,29 @@
       :debounce="debounce"
       :size="inputSize">
     </el-input-number>
+
+    <!-- div为整个滑块 -->
+    <!--根据是否显示输入框架来决定样式  -->
     <div
       class="el-slider__runway"
       :class="{ 'show-input': showInput, 'disabled': sliderDisabled }"
       :style="runwayStyle"
       @click="onSliderClick"
       ref="slider">
+
+      <!-- 已滑长度 -->
       <div
         class="el-slider__bar"
         :style="barStyle">
       </div>
+      <!-- 滑动标志位  -->
       <slider-button
         :vertical="vertical"
         v-model="firstValue"
         :tooltip-class="tooltipClass"
         ref="button1">
       </slider-button>
+      <!-- 设置range范围时，开启第二个滑动标志位 -->
       <slider-button
         :vertical="vertical"
         v-model="secondValue"
@@ -45,6 +61,8 @@
         ref="button2"
         v-if="range">
       </slider-button>
+
+      <!-- 当showStops为true时， 显示间断点 -->
       <div
         class="el-slider__stop"
         v-for="(item, key) in stops"
@@ -91,14 +109,17 @@
     },
 
     props: {
+      // 最小值
       min: {
         type: Number,
         default: 0
       },
+      // 最大值
       max: {
         type: Number,
         default: 100
       },
+      // 步长
       step: {
         type: Number,
         default: 1
@@ -107,42 +128,53 @@
         type: [Number, Array],
         default: 0
       },
+      // 是否显示输入框
       showInput: {
         type: Boolean,
         default: false
       },
+      // 在显示输入框的情况下，是否显示输入框的控制按钮
       showInputControls: {
         type: Boolean,
         default: true
       },
+      // 输入框尺寸
       inputSize: {
         type: String,
         default: 'small'
       },
+      // 是否显示间断点
       showStops: {
         type: Boolean,
         default: false
       },
+      // 是否显示tooltip
       showTooltip: {
         type: Boolean,
         default: true
       },
+      // 格式化tooltip message
       formatTooltip: Function,
+      // 是否禁用
       disabled: {
         type: Boolean,
         default: false
       },
+      // 是否为范围选择
       range: {
         type: Boolean,
         default: false
       },
+      // 是否竖向模式
       vertical: {
         type: Boolean,
         default: false
       },
+      // Slider高度， 坚向时必填
       height: {
         type: String
       },
+      // 输入时的去抖延迟
       debounce: {
         type: Number,
         default: 300
@@ -150,7 +182,9 @@
       label: {
         type: String
       },
+      // tooltip的自定义类名
       tooltipClass: String,
+      // mark展示标记
       marks: Object
     },
 
@@ -186,7 +220,7 @@
           this.setValues();
         }
       },
-
+      // 当值改变时，触发input事件
       firstValue(val) {
         if (this.range) {
           this.$emit('input', [this.minValue, this.maxValue]);
@@ -256,7 +290,7 @@
           }
         }
       },
-
+      // 设置滑块 的
       setPosition(percent) {
         const targetValue = this.min + percent * (this.max - this.min) / 100;
         if (!this.range) {
@@ -271,11 +305,14 @@
         }
         this.$refs[button].setPosition(percent);
       },
-
+      // 点击滑条时触发
       onSliderClick(event) {
+        // 当禁用时或者dragging为ture时返回
         if (this.sliderDisabled || this.dragging) return;
+        // 重置大小,设置sliderSize的值 
         this.resetSize();
         if (this.vertical) {
+          // 如果是竖向，获取当前slider组件的bottom值
           const sliderOffsetBottom = this.$refs.slider.getBoundingClientRect().bottom;
           this.setPosition((sliderOffsetBottom - event.clientY) / this.sliderSize * 100);
         } else {
@@ -290,9 +327,9 @@
           this.sliderSize = this.$refs.slider[`client${ this.vertical ? 'Height' : 'Width' }`];
         }
       },
-
       emitChange() {
         this.$nextTick(() => {
+          // 输入值改变时 发送change事件
           this.$emit('change', this.range ? [this.minValue, this.maxValue] : this.value);
         });
       },
@@ -369,7 +406,7 @@
         });
         return Math.max.apply(null, precisions);
       },
-
+      // 为竖向时设置高度
       runwayStyle() {
         return this.vertical ? { height: this.height } : {};
       },
@@ -384,7 +421,7 @@
             left: this.barStart
           };
       },
-
+      /// 判断组件是否禁用
       sliderDisabled() {
         return this.disabled || (this.elForm || {}).disabled;
       }

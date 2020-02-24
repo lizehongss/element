@@ -65,22 +65,23 @@
     },
 
     computed: {
+      // 是否禁用
       disabled() {
         return this.$parent.sliderDisabled;
       },
-
+      // 最大值
       max() {
         return this.$parent.max;
       },
-
+      // 最小值
       min() {
         return this.$parent.min;
       },
-
+      // 步长
       step() {
         return this.$parent.step;
       },
-
+      // 是否显示tooltip
       showTooltip() {
         return this.$parent.showTooltip;
       },
