@@ -2,6 +2,7 @@ import objectAssign from 'element-ui/src/utils/merge';
 import { markNodeData, NODE_KEY } from './util';
 import { arrayFindIndex } from 'element-ui/src/utils/util';
 
+// 获取树的子节点状态: 是否全选,是否半选,是否没有选择
 export const getChildState = node => {
   let all = true;
   let none = true;
@@ -22,10 +23,12 @@ export const getChildState = node => {
   return { all, none, allWithoutDisable, half: !all && !none };
 };
 
+// 设置树节点勾选
 const reInitChecked = function(node) {
   if (node.childNodes.length === 0) return;
 
   const {all, none, half} = getChildState(node.childNodes);
+  // 根据子节点状态设置该节点状态 
   if (all) {
     node.checked = true;
     node.indeterminate = false;
@@ -40,13 +43,15 @@ const reInitChecked = function(node) {
   const parent = node.parent;
   if (!parent || parent.level === 0) return;
 
+  // 如果父节点存在，设置父节点状态
   if (!node.store.checkStrictly) {
     reInitChecked(parent);
   }
 };
-
+// 获取组件传入的props在data中的值
 const getPropertyFromData = function(node, prop) {
   const props = node.store.props;
+  // node.data为整个树的数据
   const data = node.data || {};
   const config = props[prop];
 
@@ -73,7 +78,7 @@ export default class Node {
     this.parent = null;
     this.visible = true;
     this.isCurrent = false;
-
+    // 将options注册入this
     for (let name in options) {
       if (options.hasOwnProperty(name)) {
         this[name] = options[name];
@@ -85,7 +90,7 @@ export default class Node {
     this.loaded = false;
     this.childNodes = [];
     this.loading = false;
-
+    // 如果父级存在，level+1
     if (this.parent) {
       this.level = this.parent.level + 1;
     }
@@ -94,8 +99,11 @@ export default class Node {
     if (!store) {
       throw new Error('[Node]store is required!');
     }
+    //store 指向tree-store中的classt 的this
+    // 在treeStroe中的nodesMap注册该node,索引为this.key
     store.registerNode(this);
-
+    //这里的porps是在tree.vue中引入treeStore中的
+    // 设置isLeafByUser
     const props = store.props;
     if (props && typeof props.isLeaf !== 'undefined') {
       const isLeaf = getPropertyFromData(this, 'isLeaf');
@@ -103,22 +111,26 @@ export default class Node {
         this.isLeafByUser = isLeaf;
       }
     }
-
+    // 不是懒加载时， 为data数据的每一项添加node
     if (store.lazy !== true && this.data) {
+      // 设置数据
       this.setData(this.data);
 
       if (store.defaultExpandAll) {
         this.expanded = true;
       }
+      // 如果该节点为子节点并且是懒加载展开
     } else if (this.level > 0 && store.lazy && store.defaultExpandAll) {
       this.expand();
     }
+    // 如果this.data不是数组，为该数据添加data
     if (!Array.isArray(this.data)) {
       markNodeData(this, this.data);
     }
     if (!this.data) return;
     const defaultExpandedKeys = store.defaultExpandedKeys;
     const key = store.key;
+    // 为defaultExpand中的key展开树
     if (key && defaultExpandedKeys && defaultExpandedKeys.indexOf(this.key) !== -1) {
       this.expand(null, store.autoExpandParent);
     }
@@ -135,7 +147,9 @@ export default class Node {
     this.updateLeafState();
   }
 
+  // 设置数据
   setData(data) {
+    // 如果data不为数组时，为data添加$treeNodeId属性值
     if (!Array.isArray(data)) {
       markNodeData(this, data);
     }
@@ -147,10 +161,13 @@ export default class Node {
     if (this.level === 0 && this.data instanceof Array) {
       children = this.data;
     } else {
+      // 获取data的children值
       children = getPropertyFromData(this, 'children') || [];
     }
 
     for (let i = 0, j = children.length; i < j; i++) {
+      // 同样为每一个children 创建新的node    
+      // index, batcH参数为undefined
       this.insertChild({ data: children[i] });
     }
   }
@@ -168,7 +185,7 @@ export default class Node {
   get disabled() {
     return getPropertyFromData(this, 'disabled');
   }
-
+  // nextSibling 和 previousSiblind 获取当前节点的兄弟节点
   get nextSibling() {
     const parent = this.parent;
     if (parent) {
@@ -190,7 +207,7 @@ export default class Node {
     }
     return null;
   }
-
+  // 子节点是否有target节点
   contains(target, deep = true) {
     const walk = function(parent) {
       const children = parent.childNodes || [];
@@ -207,7 +224,7 @@ export default class Node {
 
     return walk(this);
   }
-
+  // 移除当前节点
   remove() {
     const parent = this.parent;
     if (parent) {
@@ -217,7 +234,7 @@ export default class Node {
 
   insertChild(child, index, batch) {
     if (!child) throw new Error('insertChild error: child is required.');
-
+    // 对children里的数据进行替换或者插入
     if (!(child instanceof Node)) {
       if (!batch) {
         const children = this.getChildren(true);
@@ -229,6 +246,7 @@ export default class Node {
           }
         }
       }
+      // 为 child数据添加parent， parent指向当前的node
       objectAssign(child, {
         parent: this,
         store: this.store
@@ -246,7 +264,7 @@ export default class Node {
 
     this.updateLeafState();
   }
-
+  // 向前插入节点
   insertBefore(child, ref) {
     let index;
     if (ref) {
@@ -254,7 +272,7 @@ export default class Node {
     }
     this.insertChild(child, index);
   }
-
+  // 向后插入节点
   insertAfter(child, ref) {
     let index;
     if (ref) {
@@ -263,7 +281,7 @@ export default class Node {
     }
     this.insertChild(child, index);
   }
-
+  // 移除子节点
   removeChild(child) {
     const children = this.getChildren() || [];
     const dataIndex = children.indexOf(child.data);
@@ -274,6 +292,7 @@ export default class Node {
     const index = this.childNodes.indexOf(child);
 
     if (index > -1) {
+      // 通过store.deregisterNode删除nodesMap
       this.store && this.store.deregisterNode(child);
       child.parent = null;
       this.childNodes.splice(index, 1);
@@ -281,7 +300,7 @@ export default class Node {
 
     this.updateLeafState();
   }
-
+  // 通过子节点的data 删除child的node
   removeChildByData(data) {
     let targetNode = null;
 
@@ -296,7 +315,7 @@ export default class Node {
       this.removeChild(targetNode);
     }
   }
-
+  // 展开树节点
   expand(callback, expandParent) {
     const done = () => {
       if (expandParent) {
@@ -325,13 +344,13 @@ export default class Node {
       done();
     }
   }
-
+  //创建子节点，用在懒加载中
   doCreateChildren(array, defaultProps = {}) {
     array.forEach((item) => {
       this.insertChild(objectAssign({ data: item }, defaultProps), undefined, true);
     });
   }
-
+  // 收起子节点 
   collapse() {
     this.expanded = false;
   }
@@ -340,6 +359,7 @@ export default class Node {
     return this.store.lazy === true && this.store.load && !this.loaded;
   }
 
+  //  更新 this.isLeaf的值
   updateLeafState() {
     if (this.store.lazy === true && this.loaded !== true && typeof this.isLeafByUser !== 'undefined') {
       this.isLeaf = this.isLeafByUser;
@@ -352,7 +372,7 @@ export default class Node {
     }
     this.isLeaf = false;
   }
-
+  // 设置选择
   setChecked(value, deep, recursion, passValue) {
     this.indeterminate = value === 'half';
     this.checked = value === true;
@@ -405,7 +425,7 @@ export default class Node {
       reInitChecked(parent);
     }
   }
-
+  // 获取data的children
   getChildren(forceInit = false) { // this is data
     if (this.level === 0) return this.data;
     const data = this.data;
@@ -427,7 +447,7 @@ export default class Node {
 
     return data[children];
   }
-
+  // 更新children
   updateChildren() {
     const newData = this.getChildren() || [];
     const oldData = this.childNodes.map((node) => node.data);
@@ -444,20 +464,20 @@ export default class Node {
         newNodes.push({ index, data: item });
       }
     });
-
+    // 删除newData中不存在的oldDatar的旧数据
     if (!this.store.lazy) {
       oldData.forEach((item) => {
         if (!newDataMap[item[NODE_KEY]]) this.removeChildByData(item);
       });
     }
-
+    // 插入新数据
     newNodes.forEach(({ index, data }) => {
       this.insertChild({ data }, index);
     });
 
     this.updateLeafState();
   }
-
+  // 懒加载
   loadData(callback, defaultProps = {}) {
     if (this.store.lazy === true && this.store.load && !this.loaded && (!this.loading || Object.keys(defaultProps).length)) {
       this.loading = true;

@@ -1,11 +1,11 @@
 import Node from './node';
 import { getNodeKey } from './util';
-
+// 操作树的数据
 export default class TreeStore {
   constructor(options) {
     this.currentNode = null;
     this.currentNodeKey = null;
-
+    // 将options数据指向this
     for (let option in options) {
       if (options.hasOwnProperty(option)) {
         this[option] = options[option];
@@ -13,12 +13,12 @@ export default class TreeStore {
     }
 
     this.nodesMap = {};
-
+    //导入数据
     this.root = new Node({
       data: this.data,
       store: this
     });
-
+    // 初始化已选择的树节点
     if (this.lazy && this.load) {
       const loadFn = this.load;
       loadFn(this.root, (data) => {
@@ -29,7 +29,7 @@ export default class TreeStore {
       this._initDefaultCheckedNodes();
     }
   }
-
+  // 过滤树
   filter(value) {
     const filterNodeMethod = this.filterNodeMethod;
     const lazy = this.lazy;
@@ -59,11 +59,13 @@ export default class TreeStore {
 
     traverse(this);
   }
-
+  //设置树数据
   setData(newVal) {
+    // 树数据不同，重新设置树，相同就更新树
     const instanceChanged = newVal !== this.root.data;
     if (instanceChanged) {
       this.root.setData(newVal);
+      // 设置checkedNodes的check值
       this._initDefaultCheckedNodes();
     } else {
       this.root.updateChildren();
@@ -104,7 +106,7 @@ export default class TreeStore {
       parentNode.insertChild({ data });
     }
   }
-
+  // 根据defaultCheckedKeys设置nodes的checked值
   _initDefaultCheckedNodes() {
     const defaultCheckedKeys = this.defaultCheckedKeys || [];
     const nodesMap = this.nodesMap;
@@ -117,7 +119,7 @@ export default class TreeStore {
       }
     });
   }
-
+  // 设置nodes的值
   _initDefaultCheckedNode(node) {
     const defaultCheckedKeys = this.defaultCheckedKeys || [];
 
@@ -125,14 +127,14 @@ export default class TreeStore {
       node.setChecked(true, !this.checkStrictly);
     }
   }
-
+  // 设置defaultCheckedKeys的值
   setDefaultCheckedKey(newVal) {
     if (newVal !== this.defaultCheckedKeys) {
       this.defaultCheckedKeys = newVal;
       this._initDefaultCheckedNodes();
     }
   }
-
+  // 用在nodesMap中添加node
   registerNode(node) {
     const key = this.key;
     if (!key || !node || !node.data) return;
