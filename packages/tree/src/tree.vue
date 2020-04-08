@@ -297,6 +297,7 @@
       },
 
       handleNodeExpand(nodeData, node, instance) {
+        // 向子组件el-tree-node广播tree-node-expand事件,向上一个el-tree-node发送$emit('tree-node-expand')事件
         this.broadcast('ElTreeNode', 'tree-node-expand', node);
         this.$emit('node-expand', nodeData, node, instance);
       },
@@ -305,7 +306,7 @@
         if (!this.nodeKey) throw new Error('[Tree] nodeKey is required in updateKeyChild');
         this.store.updateChildren(key, data);
       },
-
+      // 设置tabIndex索引
       initTabIndex() {
         this.treeItems = this.$el.querySelectorAll('.is-focusable[role=treeitem]');
         this.checkboxItems = this.$el.querySelectorAll('input[type=checkbox]');
@@ -316,7 +317,7 @@
         }
         this.treeItems[0] && this.treeItems[0].setAttribute('tabindex', 0);
       },
-
+      // 设置键盘快捷键
       handleKeydown(ev) {
         const currentItem = ev.target;
         if (currentItem.className.indexOf('el-tree-node') === -1) return;
@@ -347,7 +348,7 @@
 
     created() {
       this.isTree = true;
-
+      // 创建treeStore
       this.store = new TreeStore({
         key: this.nodeKey,
         data: this.data,
@@ -363,11 +364,13 @@
         defaultExpandAll: this.defaultExpandAll,
         filterNodeMethod: this.filterNodeMethod
       });
-
+      // 获取封装后的node
       this.root = this.store.root;
 
       let dragState = this.dragState;
+      // 绑定tree-node-drag-start事件 拖拽开始时
       this.$on('tree-node-drag-start', (event, treeNode) => {
+        // 如果allowDrag返回false，则返回
         if (typeof this.allowDrag === 'function' && !this.allowDrag(treeNode.node)) {
           event.preventDefault();
           return false;
@@ -381,13 +384,16 @@
           event.dataTransfer.setData('text/plain', '');
         } catch (e) {}
         dragState.draggingNode = treeNode;
+        // 发送节点开始拖拽时触发的事件
         this.$emit('node-drag-start', treeNode.node, event);
       });
-
+      // 绑定tree-node-drag-over事件 拖拽时
       this.$on('tree-node-drag-over', (event, treeNode) => {
+        // 返回taget的组件
         const dropNode = findNearestComponent(event.target, 'ElTreeNode');
         const oldDropNode = dragState.dropNode;
         if (oldDropNode && oldDropNode !== dropNode) {
+          // 移除class
           removeClass(oldDropNode.$el, 'is-drop-inner');
         }
         const draggingNode = dragState.draggingNode;
@@ -398,6 +404,7 @@
         let dropNext = true;
         let userAllowDropInner = true;
         if (typeof this.allowDrop === 'function') {
+          //根据this.allowDrop设置dropPrev,dropInner, dropNext的值
           dropPrev = this.allowDrop(draggingNode.node, dropNode.node, 'prev');
           userAllowDropInner = dropInner = this.allowDrop(draggingNode.node, dropNode.node, 'inner');
           dropNext = this.allowDrop(draggingNode.node, dropNode.node, 'next');
@@ -405,15 +412,17 @@
         event.dataTransfer.dropEffect = dropInner ? 'move' : 'none';
         if ((dropPrev || dropInner || dropNext) && oldDropNode !== dropNode) {
           if (oldDropNode) {
+            // 拖拽离开某个节点时触发的事件
             this.$emit('node-drag-leave', draggingNode.node, oldDropNode.node, event);
           }
+          // 拖拽进入其他节点时触发的事件
           this.$emit('node-drag-enter', draggingNode.node, dropNode.node, event);
         }
 
         if (dropPrev || dropInner || dropNext) {
           dragState.dropNode = dropNode;
         }
-
+        // 判断drop和draggingNode的位置关系来设置 dropNext, dropPrev, dropInner
         if (dropNode.node.nextSibling === draggingNode.node) {
           dropNext = false;
         }
@@ -428,8 +437,9 @@
           dropInner = false;
           dropNext = false;
         }
-
+        //获取targetPosition位置
         const targetPosition = dropNode.$el.getBoundingClientRect();
+        // 获取tree的位置
         const treePosition = this.$el.getBoundingClientRect();
 
         let dropType;
@@ -467,9 +477,10 @@
         dragState.showDropIndicator = dropType === 'before' || dropType === 'after';
         dragState.allowDrop = dragState.showDropIndicator || userAllowDropInner;
         dragState.dropType = dropType;
+        // 发送node-drag-over事件
         this.$emit('node-drag-over', draggingNode.node, dropNode.node, event);
       });
-
+      // 绑定tree-node-drag-end事件 拖拽结束时
       this.$on('tree-node-drag-end', (event) => {
         const { draggingNode, dropType, dropNode } = dragState;
         event.preventDefault();

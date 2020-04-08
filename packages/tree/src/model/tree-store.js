@@ -5,7 +5,7 @@ export default class TreeStore {
   constructor(options) {
     this.currentNode = null;
     this.currentNodeKey = null;
-    // 将options数据指向this
+    // 将options数据指向this. 包括 data,key等
     for (let option in options) {
       if (options.hasOwnProperty(option)) {
         this[option] = options[option];
@@ -13,12 +13,13 @@ export default class TreeStore {
     }
 
     this.nodesMap = {};
-    //导入数据
+    //将data里的每一个数据都封装为Node
     this.root = new Node({
       data: this.data,
       store: this
     });
     // 初始化已选择的树节点
+    // 如果是懒加载，加载数据后初始化
     if (this.lazy && this.load) {
       const loadFn = this.load;
       loadFn(this.root, (data) => {
@@ -41,19 +42,21 @@ export default class TreeStore {
 
         traverse(child);
       });
-
+      // 如果当前节点visible为false，且有子节点，则隐藏所有子节点
       if (!node.visible && childNodes.length) {
         let allHidden = true;
+        // 如果有子节点要显示，则allHideden为false
         allHidden = !childNodes.some(child => child.visible);
 
         if (node.root) {
+          // 如果子节点有要显示的，则当前节点visible应该为true
           node.root.visible = allHidden === false;
         } else {
           node.visible = allHidden === false;
         }
       }
       if (!value) return;
-
+      // 如果node.visible为true，则树展开
       if (node.visible && !node.isLeaf && !lazy) node.expand();
     };
 
@@ -71,13 +74,15 @@ export default class TreeStore {
       this.root.updateChildren();
     }
   }
-
+  // 获取节点数据
   getNode(data) {
     if (data instanceof Node) return data;
     const key = typeof data !== 'object' ? data : getNodeKey(this.key, data);
+    // nodesMap为data所有节点的索引，会随着data的更新而更新
     return this.nodesMap[key] || null;
   }
-
+  // 调用node节点的insertBerfore和insertAfter方法
+  // 注意的是需要调用父节点的方法来插入节点
   insertBefore(data, refData) {
     const refNode = this.getNode(refData);
     refNode.parent.insertBefore({ data }, refNode);
@@ -87,7 +92,7 @@ export default class TreeStore {
     const refNode = this.getNode(refData);
     refNode.parent.insertAfter({ data }, refNode);
   }
-
+  // 删除节点
   remove(data) {
     const node = this.getNode(data);
 
@@ -98,7 +103,7 @@ export default class TreeStore {
       node.parent.removeChild(node);
     }
   }
-
+  // 向节点插入子节点
   append(data, parentData) {
     const parentNode = parentData ? this.getNode(parentData) : this.root;
 
@@ -119,7 +124,7 @@ export default class TreeStore {
       }
     });
   }
-  // 设置nodes的值
+  // 设置node的值
   _initDefaultCheckedNode(node) {
     const defaultCheckedKeys = this.defaultCheckedKeys || [];
 
@@ -142,7 +147,7 @@ export default class TreeStore {
     const nodeKey = node.key;
     if (nodeKey !== undefined) this.nodesMap[node.key] = node;
   }
-
+  //注销在nodesMap中的node
   deregisterNode(node) {
     const key = this.key;
     if (!key || !node || !node.data) return;
@@ -153,7 +158,7 @@ export default class TreeStore {
 
     delete this.nodesMap[node.key];
   }
-
+  // 获取选中的节点， includeHalfChecked是否包括半选
   getCheckedNodes(leafOnly = false, includeHalfChecked = false) {
     const checkedNodes = [];
     const traverse = function(node) {
@@ -172,11 +177,11 @@ export default class TreeStore {
 
     return checkedNodes;
   }
-
+  // 目前被选中的节点的 key 所组成的数组
   getCheckedKeys(leafOnly = false) {
     return this.getCheckedNodes(leafOnly).map((data) => (data || {})[this.key]);
   }
-
+  // 获取半选节点
   getHalfCheckedNodes() {
     const nodes = [];
     const traverse = function(node) {
@@ -195,11 +200,11 @@ export default class TreeStore {
 
     return nodes;
   }
-
+  // 获取半选节点key所组成的数组
   getHalfCheckedKeys() {
     return this.getHalfCheckedNodes().map((data) => (data || {})[this.key]);
   }
-
+  // 获取所有nodes节点
   _getAllNodes() {
     const allNodes = [];
     const nodesMap = this.nodesMap;
@@ -211,11 +216,12 @@ export default class TreeStore {
 
     return allNodes;
   }
-
+  // 更新children
   updateChildren(key, data) {
     const node = this.nodesMap[key];
     if (!node) return;
     const childNodes = node.childNodes;
+    // 删除子节点然后添加数据
     for (let i = childNodes.length - 1; i >= 0; i--) {
       const child = childNodes[i];
       this.remove(child.data);
@@ -225,16 +231,21 @@ export default class TreeStore {
       this.append(child, node.data);
     }
   }
-
+  // 
   _setCheckedKeys(key, leafOnly = false, checkedKeys) {
+    // 获取所有节点
     const allNodes = this._getAllNodes().sort((a, b) => b.level - a.level);
     const cache = Object.create(null);
+    // keys为要选中的节点的this.key对应的值
     const keys = Object.keys(checkedKeys);
+    // 清空所有已选择
     allNodes.forEach(node => node.setChecked(false, false));
     for (let i = 0, j = allNodes.length; i < j; i++) {
       const node = allNodes[i];
       const nodeKey = node.data[key].toString();
+      // key值是否对应
       let checked = keys.indexOf(nodeKey) > -1;
+      // 如果不对应，node节点设置为不选中
       if (!checked) {
         if (node.checked && !cache[nodeKey]) {
           node.setChecked(false, false);
@@ -243,17 +254,18 @@ export default class TreeStore {
       }
 
       let parent = node.parent;
+      // 将当前节点的父节点全部放入cache并设置为true，以便判断勾选
       while (parent && parent.level > 0) {
         cache[parent.data[key]] = true;
         parent = parent.parent;
       }
-
+      // 设置选择
       if (node.isLeaf || this.checkStrictly) {
         node.setChecked(true, false);
         continue;
       }
       node.setChecked(true, true);
-
+      // 是否仅设置叶子节点
       if (leafOnly) {
         node.setChecked(false, false);
         const traverse = function(node) {
@@ -269,17 +281,17 @@ export default class TreeStore {
       }
     }
   }
-
+  // 设置选中的节点
   setCheckedNodes(array, leafOnly = false) {
     const key = this.key;
     const checkedKeys = {};
     array.forEach((item) => {
       checkedKeys[(item || {})[key]] = true;
     });
-
+    // checkedKeys存储要选中的数据的key值
     this._setCheckedKeys(key, leafOnly, checkedKeys);
   }
-
+  // 设置选中的节点
   setCheckedKeys(keys, leafOnly = false) {
     this.defaultCheckedKeys = keys;
     const key = this.key;
@@ -290,7 +302,7 @@ export default class TreeStore {
 
     this._setCheckedKeys(key, leafOnly, checkedKeys);
   }
-
+  // 通过keys设置默认展开
   setDefaultExpandedKeys(keys) {
     keys = keys || [];
     this.defaultExpandedKeys = keys;
@@ -300,7 +312,7 @@ export default class TreeStore {
       if (node) node.expand(null, this.autoExpandParent);
     });
   }
-
+  // 通过 key / data 设置某个节点的勾选状态
   setChecked(data, checked, deep) {
     const node = this.getNode(data);
 
@@ -308,11 +320,11 @@ export default class TreeStore {
       node.setChecked(!!checked, deep);
     }
   }
-
+  // 获取选中的节点
   getCurrentNode() {
     return this.currentNode;
   }
-
+  // 设置选中的节点
   setCurrentNode(currentNode) {
     const prevCurrentNode = this.currentNode;
     if (prevCurrentNode) {
@@ -329,6 +341,7 @@ export default class TreeStore {
   }
 
   setCurrentNodeKey(key) {
+    // key值为空，则不设置currentNode
     if (key === null || key === undefined) {
       this.currentNode && (this.currentNode.isCurrent = false);
       this.currentNode = null;

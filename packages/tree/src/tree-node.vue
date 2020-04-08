@@ -151,14 +151,14 @@
         if (val) {
           this.childNodeRendered = true;
         }
-      }
+      } 
     },
 
     methods: {
       getNodeKey(node) {
         return getNodeKey(this.tree.nodeKey, node.data);
       },
-
+      // node的indeterminate和checked变化时触发
       handleSelectChange(checked, indeterminate) {
         if (this.oldChecked !== checked && this.oldIndeterminate !== indeterminate) {
           this.tree.$emit('check-change', this.node.data, checked, indeterminate);
@@ -166,16 +166,18 @@
         this.oldChecked = checked;
         this.indeterminate = indeterminate;
       },
-
+      // 点击节点时触发
       handleClick() {
         const store = this.tree.store;
         store.setCurrentNode(this.node);
         this.tree.$emit('current-change', store.currentNode ? store.currentNode.data : null, store.currentNode);
         this.tree.currentNode = this;
+        // 是否在点击节点的时候展开或者收缩节点， 
         if (this.tree.expandOnClickNode) {
           this.handleExpandIconClick();
         }
         if (this.tree.checkOnClickNode && !this.node.disabled) {
+          // 改变checked状态
           this.handleCheckChange(null, {
             target: { checked: !this.node.checked }
           });
@@ -190,9 +192,10 @@
         }
         this.tree.$emit('node-contextmenu', event, this.node.data, this.node, this);
       },
-
+      // 展开或者收缩节点
       handleExpandIconClick() {
         if (this.node.isLeaf) return;
+        // 当前节点展开则收缩
         if (this.expanded) {
           this.tree.$emit('node-collapse', this.node.data, this.node, this);
           this.node.collapse();
@@ -201,7 +204,7 @@
           this.$emit('node-expand', this.node.data, this.node, this);
         }
       },
-
+      // 改变checked状态
       handleCheckChange(value, ev) {
         this.node.setChecked(ev.target.checked, !this.tree.checkStrictly);
         this.$nextTick(() => {
@@ -266,7 +269,7 @@
         this.expanded = true;
         this.childNodeRendered = true;
       }
-
+      // 是否每次只打开一个同级树节点展开
       if(this.tree.accordion) {
         this.$on('tree-node-expand', node => {
           if(this.node !== node) {

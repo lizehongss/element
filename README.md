@@ -16,4 +16,5 @@
   - [x] el-select
   - [x] el-cascader
   - [x] el-switch
-  - [ ] el-slider 
+  - [ ] el-slider
+  - [x] el-tree

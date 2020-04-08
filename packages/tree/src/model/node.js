@@ -167,7 +167,7 @@ export default class Node {
 
     for (let i = 0, j = children.length; i < j; i++) {
       // 同样为每一个children 创建新的node    
-      // index, batcH参数为undefined
+      // index, batch参数为undefined
       this.insertChild({ data: children[i] });
     }
   }
