@@ -14,6 +14,7 @@
     }, tableSize ? `el-table--${ tableSize }` : '']"
     @mouseleave="handleMouseLeave($event)">
     <div class="hidden-columns" ref="hiddenColumns"><slot></slot></div>
+    <!-- 是否显示表头 -->
     <div
       v-if="showHeader"
       v-mousewheel="handleHeaderFooterMousewheel"
@@ -61,6 +62,7 @@
         <slot name="append"></slot>
       </div>
     </div>
+    <!-- 合计行 -->
     <div
       v-if="showSummary"
       v-show="data && data.length > 0"
@@ -238,87 +240,90 @@
     },
 
     props: {
+      // 表格数据
       data: {
         type: Array,
         default: function() {
           return [];
         }
       },
-
+      // table 尺寸
       size: String,
 
       width: [String, Number],
-
+      // table的高度
       height: [String, Number],
-
+      // table最大高度
       maxHeight: [String, Number],
-
+      // 列的宽度是否自撑开
       fit: {
         type: Boolean,
         default: true
       },
-
+      // 是否为斑马纹 table
       stripe: Boolean,
-
+      // 是否带有纵向边框
       border: Boolean,
-
+      // 行数据的key用来优化table，为树状表格时必填
       rowKey: [String, Function],
 
       context: {},
-
+      // 是否显示表头
       showHeader: {
         type: Boolean,
         default: true
       },
-
+      // 是否在表尾显示合计行
       showSummary: Boolean,
-
+      // 合计行第一列的文本	
       sumText: String,
-
+      // 自定义的合计计算方法
       summaryMethod: Function,
-
+      // 行的 className 的回调方法，
+      // 也可以使用字符串为所有行设置一个固定的 className
       rowClassName: [String, Function],
-
+      // 行的 style 的回调方法，
+      // 也可以使用一个固定的 Object 为所有行设置一样的 Style
       rowStyle: [Object, Function],
-
+      // 同上，不过用在单元格
       cellClassName: [String, Function],
-
+      // 同上，不过用在单元格
       cellStyle: [Object, Function],
-
+      // 同上，不过用在表头
       headerRowClassName: [String, Function],
-
+      // 同上，不过用在表头
       headerRowStyle: [Object, Function],
-
+      // 同上，不过用在表头单元格
       headerCellClassName: [String, Function],
-
+      // 同上，不过用在表头单元格
       headerCellStyle: [Object, Function],
-
+      // 是否高亮当前行
       highlightCurrentRow: Boolean,
-
+      // 当前行的 key，只写属性
       currentRowKey: [String, Number],
-
+      // 空数据时显示的文本内容，也可以通过 slot="empty" 设置
       emptyText: String,
-
+      // 可以通过该属性设置 Table 目前的展开行，需要设置 row-key 属性才能使用，该属性为展开行的 keys 数组。
       expandRowKeys: Array,
-
+      // 是否默认展开所有行
       defaultExpandAll: Boolean,
-
+      // 默认的排序列的 prop 和顺序。它的prop属性指定默认的排序的列，order指定默认排序的顺序
       defaultSort: Object,
-
+      // tooltip effect 属性
       tooltipEffect: String,
-
+      // 合并行或列的计算方法
       spanMethod: Function,
-
+      // 在多选表格中，当仅有部分行被选中时，点击表头的多选框时的行为。若为 true，则选中所有行；若为 false，则取消选择所有行
       selectOnIndeterminate: {
         type: Boolean,
         default: true
       },
-
+      // 展示树形数据时，树节点的缩进
       indent: {
         type: Number,
         default: 16
       },
-
+      // 渲染嵌套数据的配置选项
       treeProps: {
         type: Object,
         default() {
@@ -328,9 +333,9 @@
           };
         }
       },
-
+      // 是否懒加载子节点数据
       lazy: Boolean,
-
+      // 	加载子节点数据的函数，lazy 为 true 时生效，函数第二个参数包含了节点的层级信息
       load: Function
     },
 
@@ -342,6 +347,7 @@
     },
 
     methods: {
+      // 提示props值更改
       getMigratingConfig() {
         return {
           events: {
@@ -353,7 +359,8 @@
       setCurrentRow(row) {
         this.store.commit('setCurrentRow', row);
       },
-
+      // 用于多选表格，切换某一行的选中状态，
+      // 如果使用了第二个参数，则是设置这一行选中与否（selected 为 true 则选中）
       toggleRowSelection(row, selected) {
         this.store.toggleRowSelection(row, selected, false);
         this.store.updateAllSelected();
@@ -412,13 +419,16 @@
       },
 
       // TODO 使用 CSS transform
+      // 节流
       syncPostion: throttle(20, function() {
         const { scrollLeft, scrollTop, offsetWidth, scrollWidth } = this.bodyWrapper;
+        // 获取组成el-table的各部分dom的scrollLeft和scrollTop
         const { headerWrapper, footerWrapper, fixedBodyWrapper, rightFixedBodyWrapper } = this.$refs;
         if (headerWrapper) headerWrapper.scrollLeft = scrollLeft;
         if (footerWrapper) footerWrapper.scrollLeft = scrollLeft;
         if (fixedBodyWrapper) fixedBodyWrapper.scrollTop = scrollTop;
         if (rightFixedBodyWrapper) rightFixedBodyWrapper.scrollTop = scrollTop;
+        // 设置scrollPosition
         const maxScrollLeftPosition = scrollWidth - offsetWidth - 1;
         if (scrollLeft >= maxScrollLeftPosition) {
           this.scrollPosition = 'right';
@@ -428,21 +438,22 @@
           this.scrollPosition = 'middle';
         }
       }),
-
+      // table=body绑定scroll事件
       bindEvents() {
         this.bodyWrapper.addEventListener('scroll', this.syncPostion, { passive: true });
+        // 如果列宽度自定义撑开
         if (this.fit) {
           addResizeListener(this.$el, this.resizeListener);
         }
       },
-
+      // 解绑table-bodyscroll事件
       unbindEvents() {
         this.bodyWrapper.removeEventListener('scroll', this.syncPostion, { passive: true });
         if (this.fit) {
           removeResizeListener(this.$el, this.resizeListener);
         }
       },
-
+      // 
       resizeListener() {
         if (!this.$ready) return;
         let shouldUpdateLayout = false;
@@ -450,6 +461,7 @@
         const { width: oldWidth, height: oldHeight } = this.resizeState;
 
         const width = el.offsetWidth;
+        // 宽度或者高度不同时，更新layout
         if (oldWidth !== width) {
           shouldUpdateLayout = true;
         }
@@ -460,6 +472,7 @@
         }
 
         if (shouldUpdateLayout) {
+          // 更新resizeState的宽度和高度
           this.resizeState.width = width;
           this.resizeState.height = height;
           this.doLayout();
@@ -487,7 +500,7 @@
       tableSize() {
         return this.size || (this.$ELEMENT || {}).size;
       },
-
+      // 返回table-body的dom结构
       bodyWrapper() {
         return this.$refs.bodyWrapper;
       },
@@ -575,7 +588,7 @@
           height
         };
       },
-
+      // 返回store.state的值
       ...mapStates({
         selection: 'selection',
         columns: 'columns',
@@ -626,7 +639,9 @@
     },
 
     created() {
+      // 设置表格tableId
       this.tableId = 'el-table_' + tableIdSeed++;
+      // 设置防抖
       this.debouncedUpdateLayout = debounce(50, () => this.doLayout());
     },
 
@@ -660,6 +675,7 @@
 
     data() {
       const { hasChildren = 'hasChildren', children = 'children' } = this.treeProps;
+      // 构造store
       this.store = createStore(this, {
         rowKey: this.rowKey,
         defaultExpandAll: this.defaultExpandAll,
@@ -670,6 +686,7 @@
         lazyColumnIdentifier: hasChildren,
         childrenColumnName: children
       });
+      // 构造layout对象
       const layout = new TableLayout({
         store: this.store,
         table: this,

@@ -15,15 +15,18 @@ export default {
 
   methods: {
     setCurrentRowKey(key) {
+      // 重置rowkey
       this.assertRowKey();
+      // 设置_currentRowKey
       this.states._currentRowKey = key;
+      // 设置currentRow
       this.setCurrentRowByKey(key);
     },
-
+    // 重置currentRow
     restoreCurrentRowKey() {
       this.states._currentRowKey = null;
-    },
-
+    },  
+    // 通过key设置currentRow
     setCurrentRowByKey(key) {
       const { states } = this;
       const { data = [], rowKey } = states;
@@ -33,7 +36,7 @@ export default {
       }
       states.currentRow = currentRow;
     },
-
+    // 更新currentRow
     updateCurrentRow(currentRow) {
       const { states, table } = this;
       const oldCurrentRow = states.currentRow;
@@ -47,7 +50,7 @@ export default {
         table.$emit('current-change', null, oldCurrentRow);
       }
     },
-
+    
     updateCurrentRowData() {
       const { states, table } = this;
       const { rowKey, _currentRowKey } = states;

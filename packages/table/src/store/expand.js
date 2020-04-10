@@ -11,8 +11,11 @@ export default {
   },
 
   methods: {
+    // 更新要展开的行
     updateExpandRows() {
       const { data = [], rowKey, defaultExpandAll, expandRows } = this.states;
+      // 设置states.expandRows
+      // defaultExpandAll为true,默认展开所有
       if (defaultExpandAll) {
         this.states.expandRows = data.slice();
       } else if (rowKey) {
@@ -38,7 +41,8 @@ export default {
         this.scheduleLayout();
       }
     },
-
+    // 设置展开行
+    // 设置states.expandRows
     setExpandRowKeys(rowKeys) {
       this.assertRowKey();
       // TODO：这里的代码可以优化
@@ -52,7 +56,7 @@ export default {
         return prev;
       }, []);
     },
-
+    // 行是否展开
     isRowExpanded(row) {
       const { expandRows = [], rowKey } = this.states;
       if (rowKey) {

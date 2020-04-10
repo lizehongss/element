@@ -5,6 +5,7 @@ import expand from './expand';
 import current from './current';
 import tree from './tree';
 
+// 数据sort
 const sortData = (data, states) => {
   const sortingColumn = states.sortingColumn;
   if (!sortingColumn || typeof sortingColumn.sortable === 'string') {
@@ -85,26 +86,31 @@ export default Vue.extend({
     updateColumns() {
       const states = this.states;
       const _columns = states._columns || [];
+      // fixedColumns表示是否有列左固定
       states.fixedColumns = _columns.filter((column) => column.fixed === true || column.fixed === 'left');
+      // rightFixedClumns表示是否有列右固定
       states.rightFixedColumns = _columns.filter((column) => column.fixed === 'right');
 
       if (states.fixedColumns.length > 0 && _columns[0] && _columns[0].type === 'selection' && !_columns[0].fixed) {
+        // 如果有左固定列且首列为多选将多选列并入左固定列
         _columns[0].fixed = true;
         states.fixedColumns.unshift(_columns[0]);
       }
-
+      // noFixedColumns 不固定的列
       const notFixedColumns = _columns.filter(column => !column.fixed);
+      // orignColumns组织后的列排序
       states.originColumns = [].concat(states.fixedColumns).concat(notFixedColumns).concat(states.rightFixedColumns);
-
+      // notFixedColumns, fixedColumns, rightFixedColumns有child数据时平铺
       const leafColumns = doFlattenColumns(notFixedColumns);
       const fixedLeafColumns = doFlattenColumns(states.fixedColumns);
       const rightFixedLeafColumns = doFlattenColumns(states.rightFixedColumns);
-
+      // 获取平铺后的长度
       states.leafColumnsLength = leafColumns.length;
       states.fixedLeafColumnsLength = fixedLeafColumns.length;
       states.rightFixedLeafColumnsLength = rightFixedLeafColumns.length;
-
+      // 记录总列
       states.columns = [].concat(fixedLeafColumns).concat(leafColumns).concat(rightFixedLeafColumns);
+      // isComplex是否包含固定列
       states.isComplex = states.fixedColumns.length > 0 || states.rightFixedColumns.length > 0;
     },
 
@@ -117,11 +123,12 @@ export default Vue.extend({
     },
 
     // 选择
+    // 是否有选择的数据
     isSelected(row) {
       const { selection = [] } = this.states;
       return selection.indexOf(row) > -1;
     },
-
+    // 清除选择
     clearSelection() {
       const states = this.states;
       states.isAllSelected = false;
@@ -131,7 +138,7 @@ export default Vue.extend({
         this.table.$emit('selection-change', []);
       }
     },
-
+    // 清洁选择
     cleanSelection() {
       const states = this.states;
       const { data, rowKey, selection } = states;
@@ -141,21 +148,26 @@ export default Vue.extend({
         const selectedMap = getKeysMap(selection, rowKey);
         const dataMap = getKeysMap(data, rowKey);
         for (let key in selectedMap) {
+          // 如果数据在selection中有, 但在data中没有,将数据推入删除缓存
           if (selectedMap.hasOwnProperty(key) && !dataMap[key]) {
             deleted.push(selectedMap[key].row);
           }
         }
       } else {
+        // 没有row-key的情况下,过滤selection中有data没有的数据
         deleted = selection.filter(item => data.indexOf(item) === -1);
       }
       if (deleted.length) {
+        // 过滤deleted
         const newSelection = selection.filter(item => deleted.indexOf(item) === -1);
         states.selection = newSelection;
         this.table.$emit('selection-change', newSelection.slice());
       }
     },
-
+    // 用于多选表格，切换某一行的选中状态，
+    // 如果使用了第二个参数，则是设置这一行选中与否（selected 为 true 则选中）
     toggleRowSelection(row, selected, emitChange = true) {
+      // toggleRowStatus对this.state.selection进行增删row
       const changed = toggleRowStatus(this.states.selection, row, selected);
       if (changed) {
         const newSelection = (this.states.selection || []).slice();
@@ -180,6 +192,7 @@ export default Vue.extend({
       let selectionChanged = false;
       data.forEach((row, index) => {
         if (states.selectable) {
+          // 如果勾选状态有改变, selectionChanged为true
           if (states.selectable.call(null, row, index) && toggleRowStatus(selection, row, value)) {
             selectionChanged = true;
           }
@@ -189,16 +202,17 @@ export default Vue.extend({
           }
         }
       });
-
+      // 勾选状态有改变时，发送selection-change
       if (selectionChanged) {
         this.table.$emit('selection-change', selection ? selection.slice() : []);
       }
       this.table.$emit('select-all', selection);
     },
-
+    // 通过rowkey更新选择
     updateSelectionByRowKey() {
       const states = this.states;
       const { selection, rowKey, data } = states;
+      // 将最新的data更新到selection中去
       const selectedMap = getKeysMap(selection, rowKey);
       data.forEach(row => {
         const rowId = getRowIdentity(row, rowKey);
@@ -208,7 +222,7 @@ export default Vue.extend({
         }
       });
     },
-
+    // 更新全选
     updateAllSelected() {
       const states = this.states;
       const { selection, rowKey, selectable } = states;
@@ -223,6 +237,7 @@ export default Vue.extend({
       if (rowKey) {
         selectedMap = getKeysMap(selection, rowKey);
       }
+      // 判断是否选择
       const isSelected = function(row) {
         if (selectedMap) {
           return !!selectedMap[getRowIdentity(row, rowKey)];
@@ -237,6 +252,7 @@ export default Vue.extend({
         const isRowSelectable = selectable && selectable.call(null, item, i);
         if (!isSelected(item)) {
           if (!selectable || isRowSelectable) {
+            //只要有一个为未选择状态，则isAllSelected为true
             isAllSelected = false;
             break;
           }
@@ -263,7 +279,7 @@ export default Vue.extend({
 
       return filters;
     },
-
+    // 更新排序
     updateSort(column, prop, order) {
       if (this.states.sortingColumn && this.states.sortingColumn !== column) {
         this.states.sortingColumn.order = null;
@@ -294,6 +310,7 @@ export default Vue.extend({
 
     execSort() {
       const states = this.states;
+      // 数据sort
       states.data = sortData(states.filteredData, states);
     },
 
@@ -304,12 +321,13 @@ export default Vue.extend({
       }
       this.execSort();
     },
-
+    // 清除过滤
     clearFilter(columnKeys) {
       const states = this.states;
       const { tableHeader, fixedTableHeader, rightFixedTableHeader } = this.table.$refs;
 
       let panels = {};
+      // merge方法， 合并filterPanels里的props到panels
       if (tableHeader) panels = merge(panels, tableHeader.filterPanels);
       if (fixedTableHeader) panels = merge(panels, fixedTableHeader.filterPanels);
       if (rightFixedTableHeader) panels = merge(panels, rightFixedTableHeader.filterPanels);
@@ -350,7 +368,7 @@ export default Vue.extend({
         });
       }
     },
-
+    // 清除sort
     clearSort() {
       const states = this.states;
       if (!states.sortingColumn) return;

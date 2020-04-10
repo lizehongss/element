@@ -18,3 +18,4 @@
   - [x] el-switch
   - [ ] el-slider
   - [x] el-tree
+  - [ ] el-table

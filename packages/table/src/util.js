@@ -16,7 +16,7 @@ export const getCell = function(event) {
 const isObject = function(obj) {
   return obj !== null && typeof obj === 'object';
 };
-
+// 排序数据
 export const orderBy = function(array, sortKey, reverse, sortMethod, sortBy) {
   if (!sortKey && !sortMethod && (!sortBy || Array.isArray(sortBy) && !sortBy.length)) {
     return array;
@@ -73,7 +73,7 @@ export const orderBy = function(array, sortKey, reverse, sortMethod, sortBy) {
     return order * reverse;
   }).map(item => item.value);
 };
-
+// 通过Id查找column
 export const getColumnById = function(table, columnId) {
   let column = null;
   table.columns.forEach(function(item) {
@@ -103,7 +103,7 @@ export const getColumnByCell = function(table, cell) {
   }
   return null;
 };
-
+// 对rowKey值进行判断处理
 export const getRowIdentity = (row, rowKey) => {
   if (!row) throw new Error('row is required when get row identity');
   if (typeof rowKey === 'string') {
@@ -120,7 +120,7 @@ export const getRowIdentity = (row, rowKey) => {
     return rowKey.call(null, row);
   }
 };
-
+// 返回rowkey值对应的array中的data的映射对象
 export const getKeysMap = function(array, rowKey) {
   const arrayMap = {};
   (array || []).forEach((row, index) => {
@@ -199,17 +199,19 @@ export function toggleRowStatus(statusArr, row, newVal) {
   let changed = false;
   const index = statusArr.indexOf(row);
   const included = index !== -1;
-
+  // 把新数据加入到尾部,
   const addRow = () => {
     statusArr.push(row);
     changed = true;
   };
+  // 删除旧数据
   const removeRow = () => {
     statusArr.splice(index, 1);
     changed = true;
   };
 
   if (typeof newVal === 'boolean') {
+    // statusArr没有row时加进去
     if (newVal && !included) {
       addRow();
     } else if (!newVal && included) {
