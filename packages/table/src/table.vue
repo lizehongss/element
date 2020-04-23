@@ -13,6 +13,7 @@
       'el-table--enable-row-transition': (store.states.data || []).length !== 0 && (store.states.data || []).length < 100
     }, tableSize ? `el-table--${ tableSize }` : '']"
     @mouseleave="handleMouseLeave($event)">
+    <!-- hover离开表格时,触发handleMouseLev  -->
     <div class="hidden-columns" ref="hiddenColumns"><slot></slot></div>
     <!-- 是否显示表头 -->
     <div
@@ -20,6 +21,8 @@
       v-mousewheel="handleHeaderFooterMousewheel"
       class="el-table__header-wrapper"
       ref="headerWrapper">
+      <!-- 表头组件, store传入组件, border是否显示边框  defaultSort: 默认排序-->
+      
       <table-header
         ref="tableHeader"
         :store="store"
@@ -30,11 +33,13 @@
         }">
       </table-header>
     </div>
+    <!-- 表格主体 -->
     <div
       class="el-table__body-wrapper"
       ref="bodyWrapper"
       :class="[layout.scrollX ? `is-scrolling-${scrollPosition}` : 'is-scrolling-none']"
       :style="[bodyHeight]">
+      <!-- 表格组件 传入store数据  stripe是否间隔, 行class和行style传入, highlightCurrentRow是否高亮当前行 -->
       <table-body
         :context="context"
         :store="store"
@@ -46,6 +51,7 @@
            width: bodyWidth
         }">
       </table-body>
+      <!-- 无数据时显示内容 -->
       <div
         v-if="!data || data.length === 0"
         class="el-table__empty-block"
@@ -55,6 +61,7 @@
           <slot name="empty">{{ emptyText || t('el.table.emptyText') }}</slot>
         </span>
       </div>
+      <!-- append存在时 加入append所代表的行 -->
       <div
         v-if="$slots.append"
         class="el-table__append-wrapper"
@@ -69,6 +76,8 @@
       v-mousewheel="handleHeaderFooterMousewheel"
       class="el-table__footer-wrapper"
       ref="footerWrapper">
+      <!-- 表尾合计 -->
+      <!-- summaryMethod 自定义表尾合计方法 -->
       <table-footer
         :store="store"
         :border="border"
@@ -80,6 +89,7 @@
         }">
       </table-footer>
     </div>
+    <!-- 如果有固定列 -->
     <div
       v-if="fixedColumns.length > 0"
       v-mousewheel="handleFixedMousewheel"
@@ -93,6 +103,7 @@
         v-if="showHeader"
         class="el-table__fixed-header-wrapper"
         ref="fixedHeaderWrapper" >
+        <!-- 表头 -->
         <table-header
           ref="fixedTableHeader"
           fixed="left"
@@ -109,6 +120,7 @@
           top: layout.headerHeight + 'px'
         },
         fixedBodyHeight]">
+        <!-- 表内容  -->
         <table-body
           fixed="left"
           :store="store"
@@ -120,11 +132,13 @@
             width: bodyWidth
           }">
         </table-body>
+        <!-- append存在 -->
         <div
           v-if="$slots.append"
           class="el-table__append-gutter"
           :style="{ height: layout.appendHeight + 'px'}"></div>
       </div>
+      <!-- 表合计存在 -->
       <div
         v-if="showSummary"
         v-show="data && data.length > 0"
@@ -141,6 +155,7 @@
           }"></table-footer>
       </div>
     </div>
+    <!-- 最右侧固定列大于1 -->
     <div
       v-if="rightFixedColumns.length > 0"
       v-mousewheel="handleFixedMousewheel"
@@ -355,7 +370,7 @@
           }
         };
       },
-
+      // 设定选择的列
       setCurrentRow(row) {
         this.store.commit('setCurrentRow', row);
       },
@@ -365,19 +380,19 @@
         this.store.toggleRowSelection(row, selected, false);
         this.store.updateAllSelected();
       },
-
+      // 用于可展开表格，切换某一行的展开状态，如果使用了第二个参数，则是设置这一行展开与否（expanded 为 true 则展开）
       toggleRowExpansion(row, expanded) {
         this.store.toggleRowExpansionAdapter(row, expanded);
       },
-
+      // 清空用户选择
       clearSelection() {
         this.store.clearSelection();
       },
-
+      // 	不传入参数时用于清空所有过滤条件，数据会恢复成未过滤的状态，也可传入由columnKey组成的数组以清除指定列的过滤条件
       clearFilter(columnKeys) {
         this.store.clearFilter(columnKeys);
       },
-
+      // 清空排序条件
       clearSort() {
         this.store.clearSort();
       },
@@ -478,18 +493,18 @@
           this.doLayout();
         }
       },
-
+      // 对 Table 进行重新布局
       doLayout() {
         if (this.shouldUpdateHeight) {
           this.layout.updateElsHeight();
         }
         this.layout.updateColumnsWidth();
       },
-
+      // 手动对 Table 进行排序
       sort(prop, order) {
         this.store.commit('sort', { prop, order });
       },
-
+      // 用于多选表格，切换所有行的选中状态
       toggleAllSelection() {
         this.store.commit('toggleAllSelection');
       }
@@ -497,6 +512,7 @@
     },
 
     computed: {
+      // 获取表格尺寸
       tableSize() {
         return this.size || (this.$ELEMENT || {}).size;
       },
@@ -504,19 +520,20 @@
       bodyWrapper() {
         return this.$refs.bodyWrapper;
       },
-
+      // 是否需要更新高度
       shouldUpdateHeight() {
         return this.height ||
           this.maxHeight ||
           this.fixedColumns.length > 0 ||
           this.rightFixedColumns.length > 0;
       },
-
+      // 表格宽度
       bodyWidth() {
         const { bodyWidth, scrollY, gutterWidth } = this.layout;
+        //根据scrollY是否为true 获取表格原有宽度
         return bodyWidth ? bodyWidth - (scrollY ? gutterWidth : 0) + 'px' : '';
       },
-
+      // 表格高度
       bodyHeight() {
         const { headerHeight = 0, bodyHeight, footerHeight = 0} = this.layout;
         if (this.height) {
@@ -533,7 +550,7 @@
         }
         return {};
       },
-
+      // 计算后的表格高度 为Table Height - Table Header Height - Scroll Bar Height
       fixedBodyHeight() {
         if (this.height) {
           return {
@@ -554,7 +571,7 @@
         }
         return {};
       },
-
+      // 有固定列时表格样式
       fixedHeight() {
         if (this.maxHeight) {
           if (this.showSummary) {
@@ -576,7 +593,7 @@
           };
         }
       },
-
+      // 无值时,表格样式
       emptyBlockStyle() {
         if (this.data && this.data.length) return null;
         let height = '100%';
@@ -599,20 +616,21 @@
     },
 
     watch: {
+      // 观察高度
       height: {
         immediate: true,
         handler(value) {
           this.layout.setHeight(value);
         }
       },
-
+      // 观察最大高度
       maxHeight: {
         immediate: true,
         handler(value) {
           this.layout.setMaxHeight(value);
         }
       },
-
+      // 观察当前行的key
       currentRowKey: {
         immediate: true,
         handler(value) {
@@ -620,14 +638,14 @@
           this.store.setCurrentRowKey(value);
         }
       },
-
+      //观察数据
       data: {
         immediate: true,
         handler(value) {
           this.store.commit('setData', value);
         }
       },
-
+      // 观察展开行的keys
       expandRowKeys: {
         immediate: true,
         handler(newVal) {
@@ -646,16 +664,19 @@
     },
 
     mounted() {
+      // 绑定事件
       this.bindEvents();
+      // store更新列
       this.store.updateColumns();
+      // 对table重新布局
       this.doLayout();
-
+      // 对resizeState给值
       this.resizeState = {
         width: this.$el.offsetWidth,
         height: this.$el.offsetHeight
       };
 
-      // init filters
+      // 初始化filtered
       this.store.states.columns.forEach(column => {
         if (column.filteredValue && column.filteredValue.length) {
           this.store.commit('filterChange', {
@@ -670,10 +691,12 @@
     },
 
     destroyed() {
+      //  解绑事件
       this.unbindEvents();
     },
 
     data() {
+      // 设置 this.treeProps
       const { hasChildren = 'hasChildren', children = 'children' } = this.treeProps;
       // 构造store
       this.store = createStore(this, {
@@ -704,6 +727,7 @@
         },
         // 是否拥有多级表头
         isGroup: false,
+        // 滚动位置
         scrollPosition: 'left'
       };
     }

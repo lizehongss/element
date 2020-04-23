@@ -130,7 +130,7 @@ Watcher.prototype.mutations = {
     this.updateCurrentRow(row);
   }
 };
-
+// 定义commit方法
 Watcher.prototype.commit = function(name, ...args) {
   const mutations = this.mutations;
   if (mutations[name]) {

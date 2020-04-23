@@ -24,6 +24,7 @@ class TableLayout {
     this.viewportHeight = null; // Table Height - Scroll Bar Height
     this.bodyHeight = null; // Table Height - Table Header Height
     this.fixedBodyHeight = null; // Table Height - Table Header Height - Scroll Bar Height
+    // 滚动条宽度
     this.gutterWidth = scrollbarWidth();
 
     for (let name in options) {
@@ -39,7 +40,7 @@ class TableLayout {
       throw new Error('store is required for Table Layout');
     }
   }
-
+  // 更新表格Y是否需要滚动
   updateScrollY() {
     const height = this.height;
     if (height === null) return false;
@@ -53,7 +54,7 @@ class TableLayout {
     }
     return false;
   }
-
+  // 设置高度
   setHeight(value, prop = 'height') {
     if (Vue.prototype.$isServer) return;
     const el = this.table.$el;
@@ -61,7 +62,7 @@ class TableLayout {
     this.height = value;
 
     if (!el && (value || value === 0)) return Vue.nextTick(() => this.setHeight(value, prop));
-
+    // value值为100或者'100px'之类
     if (typeof value === 'number') {
       el.style[prop] = value + 'px';
       this.updateElsHeight();
@@ -70,11 +71,11 @@ class TableLayout {
       this.updateElsHeight();
     }
   }
-
+  // 设置最大高度
   setMaxHeight(value) {
     this.setHeight(value, 'max-height');
   }
-
+  // 获取所有columns
   getFlattenColumns() {
     const flattenColumns = [];
     const columns = this.table.columns;
@@ -90,22 +91,27 @@ class TableLayout {
   }
 
   updateElsHeight() {
+    // this.table.$ready 判断table是否已经到mounted
     if (!this.table.$ready) return Vue.nextTick(() => this.updateElsHeight());
+    // 获取表头, 插入行, 表尾 dom结构
     const { headerWrapper, appendWrapper, footerWrapper } = this.table.$refs;
     this.appendHeight = appendWrapper ? appendWrapper.offsetHeight : 0;
 
     if (this.showHeader && !headerWrapper) return;
 
     // fix issue (https://github.com/ElemeFE/element/pull/16956)
+    // 获取表头tr dom
     const headerTrElm = headerWrapper ? headerWrapper.querySelector('.el-table__header tr') : null;
+    // 往上找元素div或者display为none时停止, div返回false display为none返回true
     const noneHeader = this.headerDisplayNone(headerTrElm);
-
+    // 设置headerHeight高度
     const headerHeight = this.headerHeight = !this.showHeader ? 0 : headerWrapper.offsetHeight;
     if (this.showHeader && !noneHeader && headerWrapper.offsetWidth > 0 && (this.table.columns || []).length > 0 && headerHeight < 2) {
       return Vue.nextTick(() => this.updateElsHeight());
     }
     const tableHeight = this.tableHeight = this.table.$el.clientHeight;
     const footerHeight = this.footerHeight = footerWrapper ? footerWrapper.offsetHeight : 0;
+    // 设置bodyHeight
     if (this.height !== null) {
       this.bodyHeight = tableHeight - headerHeight - footerHeight + (footerWrapper ? 1 : 0);
     }
@@ -129,7 +135,7 @@ class TableLayout {
     }
     return false;
   }
-
+  // 更新列的宽度 // to explain
   updateColumnsWidth() {
     if (Vue.prototype.$isServer) return;
     const fit = this.fit;
@@ -137,6 +143,7 @@ class TableLayout {
     let bodyMinWidth = 0;
 
     const flattenColumns = this.getFlattenColumns();
+    // to explain
     let flexColumns = flattenColumns.filter((column) => typeof column.width !== 'number');
 
     flattenColumns.forEach((column) => { // Clean those columns whose width changed from flex to unflex
@@ -151,8 +158,8 @@ class TableLayout {
       const scrollYWidth = this.scrollY ? this.gutterWidth : 0;
 
       if (bodyMinWidth <= bodyWidth - scrollYWidth) { // DON'T HAVE SCROLL BAR
+        // 不需要滚动
         this.scrollX = false;
-
         const totalFlexWidth = bodyWidth - scrollYWidth - bodyMinWidth;
 
         if (flexColumns.length === 1) {
@@ -172,6 +179,7 @@ class TableLayout {
           flexColumns[0].realWidth = (flexColumns[0].minWidth || 80) + totalFlexWidth - noneFirstWidth;
         }
       } else { // HAVE HORIZONTAL SCROLL BAR
+        // 需要滚动
         this.scrollX = true;
         flexColumns.forEach(function(column) {
           column.realWidth = column.minWidth;
@@ -196,7 +204,7 @@ class TableLayout {
     }
 
     const fixedColumns = this.store.states.fixedColumns;
-
+    // 如果有固定列时, 设置fixedWidth和rightFixedWidth
     if (fixedColumns.length > 0) {
       let fixedWidth = 0;
       fixedColumns.forEach(function(column) {
