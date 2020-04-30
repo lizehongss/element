@@ -1,17 +1,21 @@
 import Vue from 'vue';
 import Watcher from './watcher';
 import { arrayFind } from 'element-ui/src/utils/util';
-
+// 定义mutations
 Watcher.prototype.mutations = {
+  // 设置数据 
   setData(states, data) {
     const dataInstanceChanged = states._data !== data;
     states._data = data;
-
+    // 过滤data
     this.execQuery();
     // 数据变化，更新部分数据。
     // 没有使用 computed，而是手动更新部分数据 https://github.com/vuejs/vue/issues/6660#issuecomment-331417140
+    // 更新currentRowData
     this.updateCurrentRowData();
+    // 更新展开数据
     this.updateExpandRows();
+    // 根据reserveSelection更新selection
     if (states.reserveSelection) {
       this.assertRowKey();
       this.updateSelectionByRowKey();
@@ -23,10 +27,10 @@ Watcher.prototype.mutations = {
       }
     }
     this.updateAllSelected();
-
+    // 更新滚动条
     this.updateTableScrollY();
   },
-
+  // 插入列
   insertColumn(states, column, index, parent) {
     let array = states._columns;
     if (parent) {
@@ -50,7 +54,7 @@ Watcher.prototype.mutations = {
       this.scheduleLayout();
     }
   },
-
+  // 移除列
   removeColumn(states, column, parent) {
     let array = states._columns;
     if (parent) {
@@ -66,7 +70,7 @@ Watcher.prototype.mutations = {
       this.scheduleLayout();
     }
   },
-
+  // sort
   sort(states, options) {
     const { prop, order, init } = options;
     if (prop) {
@@ -99,7 +103,7 @@ Watcher.prototype.mutations = {
 
     this.updateTableScrollY();
   },
-
+  // 过滤数据
   filterChange(states, options) {
     let { column, values, silent } = options;
     const newFilters = this.updateFilters(column, values);

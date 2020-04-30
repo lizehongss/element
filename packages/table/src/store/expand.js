@@ -38,6 +38,7 @@ export default {
       const changed = toggleRowStatus(this.states.expandRows, row, expanded);
       if (changed) {
         this.table.$emit('expand-change', row, this.states.expandRows.slice());
+        // 更新表格布局
         this.scheduleLayout();
       }
     },

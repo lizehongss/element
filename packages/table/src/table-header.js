@@ -5,6 +5,7 @@ import FilterPanel from './filter-panel.vue';
 import LayoutObserver from './layout-observer';
 import { mapStates } from './store/helper';
 
+// 获取所有columns
 const getAllColumns = (columns) => {
   const result = [];
   columns.forEach((column) => {
@@ -17,7 +18,7 @@ const getAllColumns = (columns) => {
   });
   return result;
 };
-
+// 设置colSpan和level属性
 const convertToRows = (originColumns) => {
   let maxLevel = 1;
   const traverse = (column, parent) => {
@@ -59,7 +60,7 @@ const convertToRows = (originColumns) => {
     }
     rows[column.level - 1].push(column);
   });
-
+  // row根据level返回column
   return rows;
 };
 
@@ -69,6 +70,7 @@ export default {
   mixins: [LayoutObserver],
 
   render(h) {
+    // originColumns是组织后的columns
     const originColumns = this.store.states.originColumns;
     const columnRows = convertToRows(originColumns, this.columns);
     // 是否拥有多级表头

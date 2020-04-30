@@ -15,7 +15,7 @@ export default {
 
   methods: {
     setCurrentRowKey(key) {
-      // 重置rowkey
+      // 检查rowkey是否存在
       this.assertRowKey();
       // 设置_currentRowKey
       this.states._currentRowKey = key;

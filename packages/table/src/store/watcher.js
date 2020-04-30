@@ -82,7 +82,7 @@ export default Vue.extend({
       if (!rowKey) throw new Error('[ElTable] prop row-key is required');
     },
 
-    // 更新列
+    // 更新列数据, 如fixedColumns rightFixedColumns, originColumns, columns, isComplex等
     updateColumns() {
       const states = this.states;
       const _columns = states._columns || [];
@@ -114,7 +114,7 @@ export default Vue.extend({
       states.isComplex = states.fixedColumns.length > 0 || states.rightFixedColumns.length > 0;
     },
 
-    // 更新 DOM
+    // 更新列数据和表格布局
     scheduleLayout(needUpdateColumns) {
       if (needUpdateColumns) {
         this.updateColumns();
@@ -178,7 +178,7 @@ export default Vue.extend({
         this.table.$emit('selection-change', newSelection);
       }
     },
-
+    // 定义toggleAllSelection
     _toggleAllSelection() {
       const states = this.states;
       const { data = [], selection } = states;
@@ -279,7 +279,7 @@ export default Vue.extend({
 
       return filters;
     },
-    // 更新排序
+    // 更新排序, sortingColumn, sortProp, sortOrder
     updateSort(column, prop, order) {
       if (this.states.sortingColumn && this.states.sortingColumn !== column) {
         this.states.sortingColumn.order = null;
@@ -288,7 +288,7 @@ export default Vue.extend({
       this.states.sortProp = prop;
       this.states.sortOrder = order;
     },
-
+    // 更新filteredData
     execFilter() {
       const states = this.states;
       const { _data, filters } = states;
